@@ -51,7 +51,7 @@
     
     <div id="overlay">
       <h2>COSMIC LANCE</h2>
-      <p style="margin-bottom: 30px; font-family: monospace; font-size: 18px; color: #c8d0dc;">Use W A S D to move. Ship shoots automatically.</p>
+      <p style="margin-bottom: 30px; font-family: monospace; font-size: 18px; color: #feca57; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; border: 1px solid #feca57; text-align: center; line-height: 1.6;">🎮 Phím tắt: Dùng W, A, S, D để di chuyển.<br>🚀 Tàu chiến sẽ tự động xả đạn!</p>
       <button class="btn-play" onclick="startGame()">LAUNCH</button>
     </div>
 
@@ -112,6 +112,11 @@
     let lives = 3;
     let bgOffsetY = 0;
     let currentEnemy = null;
+    let bosses = [];
+    let bossSpawnThreshold = 5000;
+    let traps = [];
+    let isBossActive = false;
+    let bossBullets = [];
     let justAnswered = false; // Invulnerability frame logic
     let invulnTimer = 0;
     
@@ -142,6 +147,11 @@
       enemies = [];
       particles = [];
       powerups = [];
+      bosses = [];
+      traps = [];
+      bossBullets = [];
+      bossSpawnThreshold = 5000;
+      isBossActive = false;
       player.weaponLevel = 1;
       invulnTimer = 120; // 2 seconds of invulnerability at start
     }
@@ -157,17 +167,43 @@
     }
     
     function spawnEnemy() {
-      if(Math.random() < 0.05) {
+      // Spawn minions
+      let spawnRate = isBossActive ? 0.12 : 0.05; // More minions if boss is alive
+      if(Math.random() < spawnRate) {
         enemies.push({
-          x: Math.random() * (canvas.width - 40),
-          y: -40,
-          width: 40,
-          height: 40,
-          speedX: (Math.random() - 0.5) * 3,
-          speedY: 2 + Math.random() * 3,
-          hp: 2,
-          color: Math.random() > 0.5 ? '#8d73ff' : '#ff6b6b'
+          x: Math.random() * (canvas.width - 40), y: -40, width: 40, height: 40,
+          speedX: (Math.random() - 0.5) * 3, speedY: 2 + Math.random() * 3,
+          hp: 2, color: Math.random() > 0.5 ? '#8d73ff' : '#ff6b6b'
         });
+      }
+      
+      // Spawn boss every 5000 points
+      if (score >= bossSpawnThreshold) {
+         bossSpawnThreshold += 5000;
+         isBossActive = true;
+         bosses.push({
+            x: canvas.width / 2 - 100, y: -200, width: 200, height: 200,
+            speedX: 2, speedY: 0.5,
+            hp: 300, maxHp: 300, color: '#ff6b6b'
+         });
+      }
+      
+      // Spawn Traps (> 20k points)
+      if (score >= 20000) {
+         let trapChance = 0.005 + (score - 20000) / 500000;
+         if (Math.random() < trapChance) {
+            let numTraps = Math.min(3, Math.floor(score / 20000));
+            for(let i=0; i<numTraps; i++) {
+               let isHorizontal = Math.random() > 0.5;
+               traps.push({
+                  isHorizontal: isHorizontal,
+                  pos: isHorizontal ? Math.random() * (canvas.height - 100) + 50 : Math.random() * (canvas.width - 100) + 50,
+                  warnTimer: 90, // 1.5 seconds warning
+                  activeTimer: 30, // 0.5 seconds active
+                  thickness: 40 + Math.random()*20
+               });
+            }
+         }
       }
     }
 
@@ -206,6 +242,8 @@
       // Remove enemy in both cases
       let idxEnemy = enemies.indexOf(currentEnemy);
       if(idxEnemy > -1) enemies.splice(idxEnemy, 1);
+      let idxBoss = bosses.indexOf(currentEnemy);
+      if(idxBoss > -1) bosses.splice(idxBoss, 1);
       
       if(idx === currentEnemy.qData.ans) {
         // Correct - no life lost, get a huge bonus
@@ -249,25 +287,35 @@
       // Auto Shoot
       if(player.cooldown > 0) player.cooldown--;
       if(player.cooldown === 0) {
-        if(player.weaponLevel === 1) {
-          bullets.push({ x: player.x + 10, y: player.y + 15, width: 6, height: 30, speed: 18 });
-          bullets.push({ x: player.x + player.width - 16, y: player.y + 15, width: 6, height: 30, speed: 18 });
-        } else if(player.weaponLevel === 2) {
-          bullets.push({ x: player.x + 10, y: player.y + 15, width: 6, height: 30, speed: 18 });
-          bullets.push({ x: player.x + player.width/2 - 3, y: player.y, width: 6, height: 30, speed: 18 });
-          bullets.push({ x: player.x + player.width - 16, y: player.y + 15, width: 6, height: 30, speed: 18 });
-        } else {
-          bullets.push({ x: player.x + 5, y: player.y + 20, width: 8, height: 35, speed: 20 });
-          bullets.push({ x: player.x + 20, y: player.y + 5, width: 8, height: 35, speed: 20 });
-          bullets.push({ x: player.x + player.width - 28, y: player.y + 5, width: 8, height: 35, speed: 20 });
-          bullets.push({ x: player.x + player.width - 13, y: player.y + 20, width: 8, height: 35, speed: 20 });
+        let numBullets = player.weaponLevel + 1; // Level 1 -> 2 bullets, Level 8 -> 9 bullets
+        let spreadAngle = 0.15; // angle spread per bullet for higher levels
+        for(let i=0; i<numBullets; i++) {
+           let offset = (i - (numBullets-1)/2); // center is 0
+           let isOuter = Math.abs(offset) > 1;
+           
+           // If we have many bullets, fan them out
+           let vx = 0;
+           let vy = -20;
+           if(numBullets >= 4) {
+              vx = offset * 2.5; 
+           }
+           
+           let bWidth = player.weaponLevel >= 3 ? 8 : 6;
+           let bHeight = player.weaponLevel >= 3 ? 35 : 30;
+           
+           bullets.push({ 
+             x: player.x + player.width/2 - bWidth/2 + offset*10, 
+             y: player.y + 10 + Math.abs(offset)*5, 
+             width: bWidth, height: bHeight, 
+             speedY: vy, speedX: vx 
+           });
         }
         player.cooldown = player.fireRate;
       }
 
       // Update bullets
-      bullets.forEach(b => b.y -= b.speed);
-      bullets = bullets.filter(b => b.y > 0);
+      bullets.forEach(b => { b.y += b.speedY; if(b.speedX) b.x += b.speedX; });
+      bullets = bullets.filter(b => b.y > 0 && b.x > 0 && b.x < canvas.width);
 
       // Invuln timer
       if(invulnTimer > 0) invulnTimer--;
@@ -311,6 +359,113 @@
         }
       }
       
+      // Update Traps
+      for (let i = traps.length - 1; i >= 0; i--) {
+         let t = traps[i];
+         if (t.warnTimer > 0) {
+            t.warnTimer--;
+         } else if (t.activeTimer > 0) {
+            t.activeTimer--;
+            // Check collision with player
+            if (invulnTimer <= 0) {
+               if (t.isHorizontal) {
+                  if (player.y < t.pos + t.thickness/2 && player.y + player.height > t.pos - t.thickness/2) {
+                     lives--;
+                     livesEl.innerText = lives;
+                     spawnParticles(player.x+player.width/2, player.y+player.height/2, '#ff6b6b');
+                     if(lives <= 0) {
+                        state = 'over';
+                        lcModal.style.display = 'none';
+                        overlay.innerHTML = `<h2 class="failed">GAME OVER</h2><p style="font-family:'Press Start 2P', monospace; margin-bottom:20px;">FINAL SCORE: ${score}</p><button class="btn-play" onclick="startGame()">TRY AGAIN</button>`;
+                        overlay.style.display = 'flex';
+                     } else {
+                        invulnTimer = 120;
+                     }
+                     return;
+                  }
+               } else {
+                  if (player.x < t.pos + t.thickness/2 && player.x + player.width > t.pos - t.thickness/2) {
+                     lives--;
+                     livesEl.innerText = lives;
+                     spawnParticles(player.x+player.width/2, player.y+player.height/2, '#ff6b6b');
+                     if(lives <= 0) {
+                        state = 'over';
+                        lcModal.style.display = 'none';
+                        overlay.innerHTML = `<h2 class="failed">GAME OVER</h2><p style="font-family:'Press Start 2P', monospace; margin-bottom:20px;">FINAL SCORE: ${score}</p><button class="btn-play" onclick="startGame()">TRY AGAIN</button>`;
+                        overlay.style.display = 'flex';
+                     } else {
+                        invulnTimer = 120;
+                     }
+                     return;
+                  }
+               }
+            }
+         } else {
+            traps.splice(i, 1);
+         }
+      }
+
+      // Update Bosses
+      isBossActive = bosses.length > 0;
+      for (let i = bosses.length - 1; i >= 0; i--) {
+         let b = bosses[i];
+         b.x += b.speedX;
+         b.y += b.speedY;
+         
+         if (b.y > 100) b.speedY = 0; // stop moving down
+         if (b.x <= 0 || b.x + b.width >= canvas.width) b.speedX *= -1; // bounce walls
+         
+         // Boss collision with bullets
+         for(let j=bullets.length-1; j>=0; j--) {
+            let bl = bullets[j];
+            if(bl.x < b.x + b.width && bl.x + bl.width > b.x && bl.y < b.y + b.height && bl.y + bl.height > b.y) {
+               bullets.splice(j, 1);
+               b.hp--;
+               spawnParticles(bl.x, bl.y, '#feca57');
+               if(b.hp <= 0) {
+                  score += 2000;
+                  scoreEl.innerText = score;
+                  for(let k=0; k<10; k++) spawnPowerup(b.x + Math.random()*b.width, b.y + Math.random()*b.height); // massive loot
+                  bosses.splice(i, 1);
+                  break;
+               }
+            }
+         }
+         
+         // Boss collision with player
+         if (invulnTimer <= 0) {
+            if (player.x < b.x + b.width && player.x + player.width > b.x && player.y < b.y + b.height && player.y + player.height > b.y) {
+               triggerLeetCode(b);
+               return;
+            }
+         }
+         
+         // Boss shooting bullets
+         if (Math.random() < 0.05) { // 5% chance per frame
+            bossBullets.push({
+               x: b.x + b.width/2 - 10 + (Math.random()-0.5)*b.width,
+               y: b.y + b.height - 20,
+               width: 20, height: 20,
+               speedY: 6 + Math.random()*3
+            });
+         }
+      }
+
+      // Update Boss Bullets
+      for(let i=bossBullets.length-1; i>=0; i--) {
+        let bb = bossBullets[i];
+        bb.y += bb.speedY;
+        if(bb.y > canvas.height) {
+           bossBullets.splice(i, 1);
+        } else if(invulnTimer <= 0) {
+           if(player.x < bb.x + bb.width && player.x + player.width > bb.x && player.y < bb.y + bb.height && player.y + player.height > bb.y) {
+              bossBullets.splice(i, 1);
+              triggerLeetCode({ isBossBullet: true });
+              return;
+           }
+        }
+      }
+      
       // Update Powerups
       for(let i=powerups.length-1; i>=0; i--) {
         let p = powerups[i];
@@ -319,7 +474,7 @@
         // Collision with player
         if(Math.hypot(p.x - (player.x + player.width/2), p.y - (player.y + player.height/2)) < p.radius + player.width/2) {
            if(p.type === 'weapon') {
-             if(player.weaponLevel < 3) player.weaponLevel++;
+             if(player.weaponLevel < 8) player.weaponLevel++;
            } else if(p.type === 'life') {
              lives++;
              livesEl.innerText = lives;
@@ -458,6 +613,77 @@
         ctx.arc(e.x + e.width*3/4, e.y + e.height - 10, 3, 0, Math.PI*2);
         ctx.fill();
         ctx.shadowBlur = 0;
+      });
+
+      // Traps
+      traps.forEach(t => {
+         if (t.warnTimer > 0) {
+            // Warning line
+            ctx.fillStyle = (Math.floor(Date.now() / 100) % 2 === 0) ? '#ff6b6b' : 'transparent';
+            ctx.globalAlpha = 0.5;
+            if (t.isHorizontal) ctx.fillRect(0, t.pos - 2, canvas.width, 4);
+            else ctx.fillRect(t.pos - 2, 0, 4, canvas.height);
+            ctx.globalAlpha = 1;
+         } else if (t.activeTimer > 0) {
+            // Active Laser
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = '#ff6b6b';
+            ctx.fillStyle = '#ffffff';
+            if (t.isHorizontal) ctx.fillRect(0, t.pos - t.thickness/2, canvas.width, t.thickness);
+            else ctx.fillRect(t.pos - t.thickness/2, 0, t.thickness, canvas.height);
+            ctx.shadowBlur = 0;
+            
+            ctx.fillStyle = 'rgba(255, 107, 107, 0.5)';
+            if (t.isHorizontal) ctx.fillRect(0, t.pos - t.thickness/2 - 10, canvas.width, t.thickness + 20);
+            else ctx.fillRect(t.pos - t.thickness/2 - 10, 0, t.thickness + 20, canvas.height);
+         }
+      });
+
+      // Bosses
+      bosses.forEach(b => {
+         ctx.save();
+         ctx.translate(b.x, b.y);
+         
+         // Boss aura
+         ctx.shadowBlur = 40;
+         ctx.shadowColor = '#ff6b6b';
+         
+         // Huge UFO
+         ctx.fillStyle = '#2c3e50';
+         ctx.beginPath();
+         ctx.ellipse(b.width/2, b.height/2, b.width/2, b.height/3, 0, 0, Math.PI*2);
+         ctx.fill();
+         
+         ctx.beginPath();
+         ctx.fillStyle = '#1a1e29';
+         ctx.ellipse(b.width/2, b.height/2 - 15, b.width/3, b.height/4, 0, Math.PI, 0);
+         ctx.fill();
+         
+         // Core eye
+         ctx.fillStyle = '#ff6b6b';
+         ctx.beginPath();
+         ctx.arc(b.width/2, b.height/2, 20, 0, Math.PI*2);
+         ctx.fill();
+         ctx.shadowBlur = 0;
+         
+         // Health bar
+         ctx.fillStyle = '#ff6b6b';
+         ctx.fillRect(b.width*0.1, -20, b.width*0.8 * (b.hp / b.maxHp), 8);
+         ctx.strokeStyle = '#fff';
+         ctx.strokeRect(b.width*0.1, -20, b.width*0.8, 8);
+         
+         ctx.restore();
+      });
+
+      // Boss Bullets (Red Orbs)
+      bossBullets.forEach(bb => {
+         ctx.fillStyle = '#ff6b6b';
+         ctx.shadowBlur = 15;
+         ctx.shadowColor = '#ff6b6b';
+         ctx.beginPath();
+         ctx.arc(bb.x + bb.width/2, bb.y + bb.height/2, bb.width/2, 0, Math.PI*2);
+         ctx.fill();
+         ctx.shadowBlur = 0;
       });
 
       // Powerups
