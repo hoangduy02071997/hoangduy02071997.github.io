@@ -72,3 +72,321 @@ function toggleTheme() {
 }
 
 document.querySelector('.theme-toggle')?.addEventListener('click', toggleTheme);
+
+// --- Project Modal Logic ---
+const modalTranslations = {
+  vi: { role: "Vai trò", type: "Loại dự án", responsibilities: "Trách nhiệm & Tính năng", lessons: "Bài học & Kinh nghiệm đúc kết", link: "Liên kết", tech: "Công nghệ sử dụng", privateNote: "Lưu ý: Đây là dự án nội bộ / bảo mật, vì vậy mã nguồn không thể được chia sẻ công khai." },
+  ja: { role: "役割", type: "プロジェクトの種類", responsibilities: "責任と機能", lessons: "教訓と洞察", link: "リンク", tech: "使用技術", privateNote: "注：これは内部/プライベートプロジェクトであるため、ソースコードを公開することはできません。" },
+  zh: { role: "角色", type: "项目类型", responsibilities: "职责与功能", lessons: "经验与教训", link: "链接", tech: "技术栈", privateNote: "注意：这是一个内部/私人项目，因此无法公开分享源代码。" },
+  ru: { role: "Роль", type: "Тип проекта", responsibilities: "Обязанности и функции", lessons: "Уроки и выводы", link: "Ссылка", tech: "Технологии", privateNote: "Примечание: Это внутренний / закрытый проект, поэтому исходный код не может быть опубликован." },
+  en: { role: "Role", type: "Project Type", responsibilities: "Responsibilities & Features", lessons: "Lessons & Insights", link: "Link", tech: "Tech Stack", privateNote: "Note: This is an internal / private project, therefore the source code cannot be shared publicly." }
+};
+
+const projectDetails = {
+  "POS Ecommerce System — Multitenant": {
+    type: { vi: "Dự án cá nhân / Công ty (Private Source)", en: "Personal / Company (Private Source)", ja: "個人/企業 (プライベートソース)", zh: "个人/公司 (私有源码)", ru: "Личный/корпоративный (Закрытый исходный код)" },
+    link: "Internal / Live Domain (Restricted)",
+    role: "Product Owner, Maintainer & Fullstack Developer",
+    tech: { vi: "React Native: Mobile App. Laravel: Core API. NestJS: Socket Server realtime. Golang: Notification service. Redis/Kafka: Message queue.", en: "React Native: Mobile App. Laravel: Core API. NestJS: Socket Server. Golang: Notification service. Redis/Kafka: Message queue." },
+    responsibilities: { vi: "Thiết kế kiến trúc hệ thống đa chi nhánh dành cho SME. Xây dựng State Orchestrator quản lý luồng dữ liệu thời gian thực. Phát triển Chatbot bằng GPT OSS và Ollama hỗ trợ vận hành nội bộ.", en: "Designed system architecture for a multi-store SME POS platform. Built a State Orchestrator for real-time data flow. Developed a Chatbot using GPT OSS and Ollama for internal ops." },
+    lessons: { vi: "Quản lý trạng thái phân tán yêu cầu tính nhất quán cao. Dùng Kafka cho kiến trúc event-driven và Redis Pub/Sub để đồng bộ hóa realtime giữa POS mobile và Backend.", en: "Managing distributed state requires strict consistency. Used Kafka for event-driven architecture and Redis Pub/Sub for realtime synchronization." }
+  },
+  "Private Chat System": {
+    type: { vi: "Dự án cá nhân (Private Source)", en: "Personal Project (Private Source)", ja: "個人プロジェクト", zh: "个人项目", ru: "Личный проект" },
+    link: "Internal Domain (Restricted)",
+    role: "Product Owner, Maintainer & Fullstack Developer",
+    tech: { vi: "NestJS: Microservices backend. Golang: Worker. Redis/Kafka: Pub/Sub & Queue. MongoDB: Lưu trữ chat history.", en: "NestJS: Microservices backend. Golang: Worker. Redis/Kafka: Pub/Sub & Queue. MongoDB: Chat history storage." },
+    responsibilities: { vi: "Xây dựng nền tảng chat bảo mật tương tự Telegram. Thiết kế Microservices, xử lý khối lượng message lớn với độ trễ thấp.", en: "Built a secure chat platform similar to Telegram. Designed Microservices, handled massive message volumes with low latency." },
+    lessons: { vi: "Scale hệ thống WebSockets với Redis Adapter. Áp dụng Cursor Pagination và đánh Index theo mốc thời gian để truy xuất mượt mà.", en: "Scaling WebSockets with Redis Adapter. Applied Cursor Pagination and time-based indexing for smooth retrieval." }
+  },
+  "POS HT Official Coffee": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "https://htofficial.vn (Live Domain)",
+    role: "Fullstack Developer",
+    tech: { vi: "React Native: POS Interface. Kotlin: Native Module cho máy in/quét Sunmi POS. Laravel: API và nghiệp vụ lõi.", en: "React Native: POS Interface. Kotlin: Native Module for Sunmi POS hardware. Laravel: Core API and business logic." },
+    responsibilities: { vi: "Phát triển ứng dụng POS, viết Kotlin Native Module giao tiếp phần cứng. Xây dựng Backend API xử lý đơn hàng và xuất hoá đơn.", en: "Developed POS app, wrote Kotlin Native Module for hardware. Built Backend API for orders and invoices." },
+    lessons: { vi: "Kết nối công nghệ Web/Mobile với phần cứng Native dễ gây rò rỉ bộ nhớ. Quản lý luồng phần cứng tối ưu.", en: "Connecting Web/Mobile with Native hardware risks memory leaks. Managed hardware threads optimally." }
+  },
+  "Activation Management": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "https://drdigital.vn (Live Domain)",
+    role: "Backend Developer",
+    tech: { vi: "Node.js & Laravel: Backend xử lý dữ liệu chiến dịch. React/React Native: Dashboard & App cho PG/PB.", en: "Node.js & Laravel: Campaign data backend. React/React Native: Dashboard & App for PG/PB." },
+    responsibilities: { vi: "Phát triển hệ thống quản lý dữ liệu chiến dịch Activation ngoài thị trường. Phân tích số liệu sản phẩm.", en: "Developed activation data management system for field operations. Analyzed product metrics." },
+    lessons: { vi: "Thiết kế kiến trúc đồng bộ Offline-First giữa Mobile và Server cho đội ngũ ngoài thị trường có mạng yếu.", en: "Designed Offline-First synchronization architecture for field teams with poor network." }
+  },
+  "Check-in / Face Recognition": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal System (HT Group)",
+    role: "Fullstack Developer",
+    tech: { vi: "Python/Flask: Backend AI. FaceNet/PyTorch: Xử lý Face Embeddings và nhận diện khuôn mặt.", en: "Python/Flask: AI Backend. FaceNet/PyTorch: Face Embeddings and recognition." },
+    responsibilities: { vi: "Phát triển hệ thống điểm danh bằng Face Recognition. Tích hợp AI services cho Face Detection, Liveness Check.", en: "Developed attendance system using Face Recognition. Integrated AI services for Face Detection and Liveness Check." },
+    lessons: { vi: "Tối ưu hoá đóng gói model AI thành microservice độc lập, tránh nghẽn khi xử lý vector embeddings.", en: "Packaged AI models as independent microservices to avoid bottlenecks during vector embedding processing." }
+  },
+  "Support Chatbot GPT": {
+    type: { vi: "Dự án cá nhân (Private Source)", en: "Personal Project (Private Source)", ja: "個人プロジェクト", zh: "个人项目", ru: "Личный проект" },
+    link: "Internal Product",
+    role: "Developer",
+    tech: { vi: "OpenAI GPT API: NLP Engine. NestJS: Backend tích hợp SSE streaming. Redis: Cache ngữ cảnh.", en: "OpenAI GPT API: NLP Engine. NestJS: Backend with SSE streaming. Redis: Context cache." },
+    responsibilities: { vi: "Tích hợp OpenAI API xây dựng Chatbot. Áp dụng Server-Sent Events (SSE) streaming response. Thử nghiệm Llama-2 local.", en: "Integrated OpenAI API to build Chatbot. Applied SSE streaming response. Experimented with local Llama-2." },
+    lessons: { vi: "Dùng LangChain và Vector Database (RAG) giải quyết giới hạn Token, giúp Chatbot nhớ dữ liệu dài.", en: "Used LangChain and Vector Database (RAG) to solve Token limits and retain long-term memory." }
+  },
+  "Ecommerce Website": {
+    type: { vi: "Dự án cá nhân / Freelance", en: "Personal / Freelance Project", ja: "個人/フリーランスプロジェクト", zh: "个人/自由职业项目", ru: "Личный / фриланс проект" },
+    link: "Private Client (Live Domain)",
+    role: "Fullstack Developer",
+    tech: { vi: "React/Next.js: Frontend. NestJS: Backend API. Redis/MongoDB: Database & Cache.", en: "React/Next.js: Frontend. NestJS: Backend API. Redis/MongoDB: Database & Cache." },
+    responsibilities: { vi: "Bảo trì nền tảng Ecommerce. Tối ưu hoá truy vấn DB chậm, sửa lỗi liên quan đến thanh toán.", en: "Maintained Ecommerce platform. Optimized slow DB queries, fixed payment flow bugs." },
+    lessons: { vi: "Thấy rõ tác hại N+1 Query. Áp dụng Redis Caching giảm 80% tải Database lúc cao điểm.", en: "Saw N+1 Query impacts. Applied Redis Caching to reduce peak Database load by 80%." }
+  },
+  "Heineken System": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal System (Restricted)",
+    role: "Backend Developer",
+    tech: { vi: "Laravel/Node.js: Backend API. MySQL: CSDL quan hệ lưu trữ dữ liệu PG/PB.", en: "Laravel/Node.js: Backend API. MySQL: Relational DB for PG/PB data." },
+    responsibilities: { vi: "Phát triển Backend và API quản lý các chiến dịch Activation của Heineken tại điểm bán.", en: "Developed Backend and APIs managing Heineken Activation campaigns at point of sale." },
+    lessons: { vi: "Xử lý lượng dữ liệu nhập đồng loạt. Cải thiện tối ưu Transaction và Locking trong Database.", en: "Handled simultaneous data inputs. Improved Transaction optimization and DB Locking." }
+  },
+  "Gumac — CRM / Ecommerce": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "https://gumac.vn (Live Domain)",
+    role: "Backend Developer",
+    tech: { vi: "PHP/Laravel: Core CRM. Node.js: Service phụ trợ. RabbitMQ: Message queue xử lý bất đồng bộ.", en: "PHP/Laravel: Core CRM. Node.js: Ancillary services. RabbitMQ: Message queue for async tasks." },
+    responsibilities: { vi: "Phát triển CRM và Ecommerce Omnichannel. Dùng RabbitMQ xử lý dữ liệu bất đồng bộ.", en: "Developed Omnichannel CRM and Ecommerce. Used RabbitMQ for asynchronous data handling." },
+    lessons: { vi: "Kiến trúc Event-Driven giúp decouple các service, đảm bảo hệ thống không sập dây chuyền.", en: "Event-Driven architecture decoupled services, preventing cascading failures." }
+  },
+  "Daikin Ecommerce": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal / Live",
+    role: "Backend Developer",
+    tech: { vi: "Node.js & Laravel: Backend xử lý dữ liệu. React: Giao diện người dùng.", en: "Node.js & Laravel: Data backend. React: User interface." },
+    responsibilities: { vi: "Phát triển tính năng và API Backend phục vụ hệ thống Ecommerce của Daikin.", en: "Developed features and Backend APIs for Daikin's Ecommerce system." },
+    lessons: { vi: "Cải thiện viết Clean Code và thiết kế RESTful API theo chuẩn doanh nghiệp.", en: "Improved Clean Code practices and enterprise RESTful API design." }
+  },
+  "VCBS — Vietcombank Securities": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "https://vcbs.com.vn (Live Domain)",
+    role: "Backend Developer",
+    tech: { vi: "PHP/Laravel: Hệ thống Backend. SQL Server: Lưu trữ giao dịch tài chính.", en: "PHP/Laravel: Backend system. SQL Server: Financial transaction storage." },
+    responsibilities: { vi: "Phát triển Backend chứng khoán. Tối ưu tốc độ truy vấn xử lý dữ liệu tài chính.", en: "Developed securities Backend. Optimized query speed processing financial data." },
+    lessons: { vi: "Thiết kế DB chặt chẽ, sử dụng ACID Transaction và xử lý đồng thời (Concurrency) an toàn.", en: "Implemented strict DB design, ACID Transactions, and safe concurrency handling." }
+  },
+  "E-Buzz Chat Application": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal System",
+    role: "Fullstack Developer",
+    tech: { vi: "NestJS: Socket & API Backend. React/React Native: Web & Mobile App. MongoDB/Redis: DB & Pub/Sub.", en: "NestJS: Socket & API Backend. React/React Native: Web & Mobile App. MongoDB/Redis: DB & Pub/Sub." },
+    responsibilities: { vi: "Xây dựng Chat nội bộ. Code ReactJS CMS, React Native App và NestJS Backend.", en: "Built internal Chat app. Coded ReactJS CMS, React Native App, and NestJS Backend." },
+    lessons: { vi: "Sử dụng MongoDB kết hợp Redis để tăng tốc độ phát (broadcast) sự kiện qua Socket.IO.", en: "Used MongoDB with Redis to accelerate event broadcasting via Socket.IO." }
+  },
+  "Dating Application": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal System",
+    role: "Fullstack Developer",
+    tech: { vi: "NestJS: Thuật toán matching & API. MongoDB: Geospatial Indexing. Next.js/React Native: Frontend.", en: "NestJS: Matching algorithms & API. MongoDB: Geospatial Indexing. Next.js/React Native: Frontend." },
+    responsibilities: { vi: "Xây dựng ứng dụng hẹn hò. Phát triển thuật toán ghép đôi, API định vị (Geospatial) và chat real-time.", en: "Built dating app. Developed matching algorithms, Geospatial APIs, and real-time chat." },
+    lessons: { vi: "Tối ưu truy vấn toạ độ không gian (Geospatial Indexing) trong MongoDB để tìm kiếm nhanh chóng.", en: "Optimized Geospatial Indexing in MongoDB for fast nearby user searches." }
+  },
+  "Tarot Application": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal System",
+    role: "Mobile Developer & Fullstack",
+    tech: { vi: "React Native: Hoạt ảnh UI phức tạp. NestJS: Backend API. Next.js: Web CMS.", en: "React Native: Complex UI animations. NestJS: Backend API. Next.js: Web CMS." },
+    responsibilities: { vi: "Quản lý Mobile App bói bài Tarot. Giao tiếp API NestJS và luồng hoạt ảnh phức tạp.", en: "Managed Tarot Mobile App. Interfaced with NestJS API and built complex animations." },
+    lessons: { vi: "Học quản lý state trên ứng dụng Mobile phức tạp và tối ưu render UI bằng React Native.", en: "Learned complex Mobile state management and optimized UI render performance with React Native." }
+  },
+  "B2C Ecommerce": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Live Domain",
+    role: "Developer & Maintainer",
+    tech: { vi: "Laravel: Core hệ thống. React/Next.js: Frontend. Redis: Cache & Locks. TailwindCSS: Styling.", en: "Laravel: Core system. React/Next.js: Frontend. Redis: Cache & Locks. TailwindCSS: Styling." },
+    responsibilities: { vi: "Phát triển sàn thương mại B2C. Xử lý đặt hàng, giảm giá, và tối ưu tốc độ load trang.", en: "Developed B2C ecommerce platform. Handled orders, discounts, and page load optimization." },
+    lessons: { vi: "Xử lý tồn kho trong Flash Sale cần áp dụng Redis Atomic Locks để chống over-selling.", en: "Handling Flash Sale inventory requires Redis Atomic Locks to prevent over-selling." }
+  },
+  "LofiWee — Page Builder Platform": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal Platform",
+    role: "Manager Frontend & Maintainer",
+    tech: { vi: "React/Next.js: Frontend Builder. NestJS/Node.js: Microservices. Kubernetes: Deploy & Autoscaling.", en: "React/Next.js: Frontend Builder. NestJS/Node.js: Microservices. Kubernetes: Deploy & Autoscaling." },
+    responsibilities: { vi: "Lead Frontend xây dựng Page Builder. Kiến trúc Microservices Node.js/NestJS deploy trên Kubernetes.", en: "Led Frontend for Page Builder. Microservices Node.js/NestJS architecture deployed on Kubernetes." },
+    lessons: { vi: "Quản lý JSON khổng lồ đòi hỏi tối ưu Redux Store sâu sắc. Áp dụng Autoscaling với Kubernetes.", en: "Managing massive JSON requires deep Redux Store optimization. Applied Autoscaling with Kubernetes." }
+  },
+  "CMS Management": {
+    type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
+    link: "Internal",
+    role: "Frontend Developer",
+    tech: { vi: "ReactJS: UI Components. PHP/Laravel: Backend API & Data flow.", en: "ReactJS: UI Components. PHP/Laravel: Backend API & Data flow." },
+    responsibilities: { vi: "Phát triển giao diện quản lý dữ liệu nội dung, kết nối API backend PHP/Laravel.", en: "Developed content management UI, connecting to PHP/Laravel backend APIs." },
+    lessons: { vi: "Xây dựng hệ thống Reusable Components để đẩy nhanh tốc độ phát triển các module CMS.", en: "Built Reusable Components system to accelerate CMS module development." }
+  }
+};
+
+const modalOverlay = document.getElementById('projectModal');
+const modalBody = document.querySelector('.project-modal-body');
+const modalCloseBtn = document.querySelector('.project-modal-close');
+
+function openProjectModal(title) {
+  const data = projectDetails[title];
+  if (!data || !modalOverlay || !modalBody) return;
+  
+  const currentLang = document.documentElement.lang || 'en';
+  const t = modalTranslations[currentLang] || modalTranslations.en;
+  
+  const typeText = data.type[currentLang] || data.type.en;
+  const resText = data.responsibilities[currentLang] || data.responsibilities.en;
+  const lesText = data.lessons[currentLang] || data.lessons.en;
+  const techText = data.tech ? (data.tech[currentLang] || data.tech.en) : '';
+  
+  // Notice for private projects
+  const isPrivate = typeText.toLowerCase().includes('private') || typeText.toLowerCase().includes('cá nhân') || typeText.toLowerCase().includes('nội bộ') || typeText.toLowerCase().includes('корпоративный') || typeText.toLowerCase().includes('私有');
+  const privateNotice = isPrivate ? `
+    <div class="pm-notice">
+      <i class="fa-solid fa-lock"></i>
+      <span>${t.privateNote || modalTranslations.en.privateNote}</span>
+    </div>
+  ` : '';
+  
+  const techSection = techText ? `
+    <div class="pm-section">
+      <h4><i class="fa-solid fa-code"></i> ${t.tech || modalTranslations.en.tech}</h4>
+      <p>${techText}</p>
+    </div>
+  ` : '';
+  
+  modalBody.innerHTML = `
+    <h2 class="pm-title">${title}</h2>
+    <div class="pm-meta">
+      <div><i class="fa-solid fa-user-gear"></i> <strong>${t.role}:</strong> ${data.role}</div>
+      <div><i class="fa-solid fa-building-lock"></i> <strong>${t.type}:</strong> ${typeText}</div>
+    </div>
+    
+    ${privateNotice}
+    ${techSection}
+    
+    <div class="pm-section">
+      <h4><i class="fa-solid fa-layer-group"></i> ${t.responsibilities}</h4>
+      <p>${resText}</p>
+    </div>
+    
+    <div class="pm-section">
+      <h4><i class="fa-solid fa-lightbulb"></i> ${t.lessons}</h4>
+      <p>${lesText}</p>
+    </div>
+    
+    <a href="#" class="pm-link" onclick="event.preventDefault()"><i class="fa-solid fa-globe"></i> ${data.link}</a>
+  `;
+  
+  modalOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+  modalOverlay.setAttribute('data-current-project', title);
+}
+
+document.querySelectorAll('.project').forEach(card => {
+  card.addEventListener('click', () => {
+    const titleEl = card.querySelector('h3');
+    if(!titleEl) return;
+    openProjectModal(titleEl.innerText.trim());
+  });
+});
+
+// Update modal content on language switch if it's currently open
+langSelects.forEach(select => {
+  select.addEventListener('change', (e) => {
+    if (modalOverlay && modalOverlay.classList.contains('active')) {
+      const activeProject = modalOverlay.getAttribute('data-current-project');
+      if (activeProject) {
+        // slight delay to allow language state to update
+        setTimeout(() => { openProjectModal(activeProject); }, 50);
+      }
+    }
+  });
+});
+
+function closeModal() {
+  if(modalOverlay) {
+    modalOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+  }
+}
+
+if(modalCloseBtn) modalCloseBtn.addEventListener('click', closeModal);
+if(modalOverlay) modalOverlay.addEventListener('click', (e) => {
+  if(e.target === modalOverlay || e.target.classList.contains('project-modal-backdrop')) {
+    closeModal();
+  }
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape' && modalOverlay && modalOverlay.classList.contains('active')) {
+    closeModal();
+  }
+});
+
+
+// --- Timeline Translations ---
+if (translations.vi) Object.assign(translations.vi, {
+  "Maintenance and development of internal systems including ERP, SmartCard and Ecommerce.": "Bảo trì và phát triển hệ thống nội bộ bao gồm ERP, SmartCard và Ecommerce.",
+  "Built and maintained HTOfficial POS for stock, product variants, materials, orders, accounting and tax invoice publishing.": "Xây dựng và bảo trì HTOfficial POS cho kho, biến thể sản phẩm, đơn hàng, kế toán và xuất hoá đơn thuế.",
+  "Researched improvements to business flows and handled customer maintenance.": "Nghiên cứu cải tiến luồng nghiệp vụ và hỗ trợ khách hàng.",
+  "Node.js backend development and new features from business requirements.": "Phát triển Node.js backend và tính năng mới từ yêu cầu nghiệp vụ.",
+  "Maintenance, change requests and enhancement of features following business rules.": "Bảo trì, xử lý yêu cầu thay đổi và cải tiến tính năng theo quy tắc nghiệp vụ.",
+  "RESTful APIs for mobile and SPA applications.": "Phát triển RESTful APIs cho ứng dụng di động và SPA.",
+  "SQL query optimization and backend development across activation and ecommerce systems.": "Tối ưu truy vấn SQL và phát triển backend cho các hệ thống Activation, Ecommerce.",
+  "Backend CMS for CRUD data and RESTful APIs for SPA CMS and websites.": "Phát triển Backend CMS xử lý dữ liệu CRUD và RESTful APIs cho SPA, Websites.",
+  "Frontend team lead, backend and mobile development, project management and technical support for customers.": "Lead Frontend, phát triển Backend, Mobile, quản lý dự án và hỗ trợ kỹ thuật.",
+  "Frontend website development, backend development and customer technology support.": "Phát triển website Frontend, Backend và hỗ trợ kỹ thuật khách hàng.",
+  "Frontend and backend website development and product/solution development.": "Phát triển website Frontend, Backend và giải pháp sản phẩm.",
+  "Managed company devices and network and provided hosting for development environments including Dev, Staging and UAT.": "Quản lý thiết bị/mạng nội bộ và quản trị máy chủ cho môi trường Dev, Staging, UAT.",
+  "TOEIC 550": "Chứng chỉ TOEIC 550",
+  "MCSA (Microsoft Certified Solutions Associate)": "Chứng chỉ Quản trị Hệ thống Microsoft (MCSA)"
+});
+
+if (translations.ja) Object.assign(translations.ja, {
+  "Maintenance and development of internal systems including ERP, SmartCard and Ecommerce.": "ERP、SmartCard、Ecommerceを含む社内システムの保守・開発。",
+  "Built and maintained HTOfficial POS for stock, product variants, materials, orders, accounting and tax invoice publishing.": "在庫、製品、注文、会計、税金請求書発行のためのHTOfficial POSを構築・保守。",
+  "Researched improvements to business flows and handled customer maintenance.": "ビジネスフローの改善を調査し、顧客対応を実施。",
+  "Node.js backend development and new features from business requirements.": "ビジネス要件に基づくNode.jsバックエンドおよび新機能の開発。",
+  "Maintenance, change requests and enhancement of features following business rules.": "ビジネスルールに基づく保守、変更要求、および機能強化。",
+  "RESTful APIs for mobile and SPA applications.": "モバイルおよびSPAアプリケーション向けのRESTful API開発。",
+  "SQL query optimization and backend development across activation and ecommerce systems.": "アクティベーションおよびECシステム全体のSQLクエリ最適化とバックエンド開発。",
+  "Backend CMS for CRUD data and RESTful APIs for SPA CMS and websites.": "CRUDデータ用バックエンドCMS、およびSPAやWeb向けRESTful API開発。",
+  "Frontend team lead, backend and mobile development, project management and technical support for customers.": "フロントエンドリード、バックエンド・モバイル開発、プロジェクト管理、技術サポート。",
+  "Frontend website development, backend development and customer technology support.": "フロントエンドWeb開発、バックエンド開発、顧客技術サポート。",
+  "Frontend and backend website development and product/solution development.": "フロントエンド・バックエンドWeb開発、製品・ソリューション開発。",
+  "Managed company devices and network and provided hosting for development environments including Dev, Staging and UAT.": "社内デバイスとネットワークの管理、開発環境（Dev、Staging、UAT）のホスティング提供。",
+  "TOEIC 550": "TOEIC 550",
+  "MCSA (Microsoft Certified Solutions Associate)": "MCSA (Microsoft Certified Solutions Associate)"
+});
+
+if (translations.zh) Object.assign(translations.zh, {
+  "Maintenance and development of internal systems including ERP, SmartCard and Ecommerce.": "维护和开发包括ERP、SmartCard和电子商务在内的内部系统。",
+  "Built and maintained HTOfficial POS for stock, product variants, materials, orders, accounting and tax invoice publishing.": "构建和维护HTOfficial POS，用于库存、产品、订单、会计和税务发票。",
+  "Researched improvements to business flows and handled customer maintenance.": "研究业务流程改进并处理客户维护。",
+  "Node.js backend development and new features from business requirements.": "根据业务需求开发Node.js后端和新功能。",
+  "Maintenance, change requests and enhancement of features following business rules.": "遵循业务规则进行维护、变更请求和功能增强。",
+  "RESTful APIs for mobile and SPA applications.": "为移动端和SPA应用开发RESTful API。",
+  "SQL query optimization and backend development across activation and ecommerce systems.": "针对激活和电子商务系统进行SQL查询优化和后端开发。",
+  "Backend CMS for CRUD data and RESTful APIs for SPA CMS and websites.": "用于CRUD数据的后端CMS，以及用于SPA和网站的RESTful API。",
+  "Frontend team lead, backend and mobile development, project management and technical support for customers.": "前端组长、后端和移动端开发、项目管理和客户技术支持。",
+  "Frontend website development, backend development and customer technology support.": "前端网站开发、后端开发和客户技术支持。",
+  "Frontend and backend website development and product/solution development.": "前端和后端网站开发及产品/解决方案开发。",
+  "Managed company devices and network and provided hosting for development environments including Dev, Staging and UAT.": "管理公司设备和网络，为开发、测试和UAT环境提供托管。",
+  "TOEIC 550": "TOEIC 550",
+  "MCSA (Microsoft Certified Solutions Associate)": "微软认证解决方案副专家 (MCSA)"
+});
+
+if (translations.ru) Object.assign(translations.ru, {
+  "Maintenance and development of internal systems including ERP, SmartCard and Ecommerce.": "Поддержка и разработка внутренних систем, включая ERP, SmartCard и Ecommerce.",
+  "Built and maintained HTOfficial POS for stock, product variants, materials, orders, accounting and tax invoice publishing.": "Создание и поддержка HTOfficial POS для складов, товаров, заказов, учета и выставления счетов.",
+  "Researched improvements to business flows and handled customer maintenance.": "Исследование улучшений бизнес-процессов и поддержка клиентов.",
+  "Node.js backend development and new features from business requirements.": "Разработка бэкенда на Node.js и новых функций по бизнес-требованиям.",
+  "Maintenance, change requests and enhancement of features following business rules.": "Поддержка, запросы на изменения и улучшение функций в соответствии с бизнес-правилами.",
+  "RESTful APIs for mobile and SPA applications.": "Разработка RESTful API для мобильных и SPA приложений.",
+  "SQL query optimization and backend development across activation and ecommerce systems.": "Оптимизация SQL-запросов и разработка бэкенда для систем активации и электронной коммерции.",
+  "Backend CMS for CRUD data and RESTful APIs for SPA CMS and websites.": "Backend CMS для данных CRUD и RESTful API для SPA и веб-сайтов.",
+  "Frontend team lead, backend and mobile development, project management and technical support for customers.": "Руководитель frontend команды, разработка бэкенда/мобильных приложений, управление проектами.",
+  "Frontend website development, backend development and customer technology support.": "Разработка frontend, backend и техническая поддержка клиентов.",
+  "Frontend and backend website development and product/solution development.": "Разработка frontend/backend и продуктов/решений.",
+  "Managed company devices and network and provided hosting for development environments including Dev, Staging and UAT.": "Управление устройствами и сетью компании, предоставление хостинга для Dev, Staging и UAT.",
+  "TOEIC 550": "TOEIC 550",
+  "MCSA (Microsoft Certified Solutions Associate)": "MCSA (Microsoft Certified Solutions Associate)"
+});
