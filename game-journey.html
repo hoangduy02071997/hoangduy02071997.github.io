@@ -52,7 +52,7 @@
     
     <div id="overlay">
       <h2>JUNGLE SURVIVAL</h2>
-      <p style="margin-bottom: 30px; font-family: monospace; font-size: 18px; color: #c8d0dc;">Use W A S D to explore the forest. Escape the bandits & wolves!</p>
+      <p style="margin-bottom: 30px; font-family: monospace; font-size: 18px; color: #feca57; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 8px; border: 1px solid #feca57; text-align: center; line-height: 1.6;">🎮 Phím tắt:<br>Dùng W, A, S, D để chạy.<br>Bấm SPACE để nhảy.<br>Tránh đụng núi và bọn quái thú!</p>
       <button class="btn-play" onclick="startGame()">ENTER FOREST</button>
     </div>
 
@@ -101,16 +101,23 @@
     let score = 0;
     let lives = 3;
     let invulnTimer = 0;
+    let velocityY = 0;
+    let isJumping = false;
     
     const keys = {};
-    window.addEventListener('keydown', e => keys[e.code.toLowerCase()] = true);
+    window.addEventListener('keydown', e => {
+       keys[e.code.toLowerCase()] = true;
+       if (e.code.toLowerCase() === 'space') {
+          e.preventDefault();
+       }
+    });
     window.addEventListener('keyup', e => keys[e.code.toLowerCase()] = false);
 
     // Three.js Setup
     const container = document.getElementById('canvas-container');
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x87CEEB); // Sky blue
-    scene.fog = new THREE.Fog(0x87CEEB, 20, 150); // Fog to hide pop-in
+    scene.fog = new THREE.Fog(0x87CEEB, 20, 180); // Expand fog for larger map
     
     const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -121,7 +128,7 @@
     // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
     dirLight.position.set(50, 100, 50);
     dirLight.castShadow = true;
     dirLight.shadow.camera.left = -100;
@@ -130,26 +137,56 @@
     dirLight.shadow.camera.bottom = -100;
     scene.add(dirLight);
 
-    // Environment: Grass Floor
-    const floorGeo = new THREE.PlaneGeometry(2000, 2000);
+    // Environment: Infinite Grass Floor
+    // Make it massive so edges aren't visible, and we will follow player
+    const floorGeo = new THREE.PlaneGeometry(3000, 3000);
     const floorMat = new THREE.MeshLambertMaterial({ color: 0x3b7a33 });
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
     
-    // Builders for low-poly characters
-    function createHuman(shirtColor, pantsColor, isEnemy=false) {
+    // Character Builders
+    function createHuman(type) {
         const group = new THREE.Group();
+        const isEnemy = type === 'bandit';
         
         const skinMat = new THREE.MeshLambertMaterial({ color: 0xffccaa });
-        const shirtMat = new THREE.MeshLambertMaterial({ color: shirtColor });
-        const pantsMat = new THREE.MeshLambertMaterial({ color: pantsColor });
+        const shirtMat = new THREE.MeshLambertMaterial({ color: isEnemy ? 0x222222 : 0x3498db });
+        const pantsMat = new THREE.MeshLambertMaterial({ color: isEnemy ? 0x111111 : 0x2980b9 });
         
         // Head
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), isEnemy ? new THREE.MeshLambertMaterial({color: 0x111111}) : skinMat);
-        head.position.y = 2.4;
+        const headGroup = new THREE.Group();
+        headGroup.position.y = 2.4;
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), skinMat);
         head.castShadow = true;
+        headGroup.add(head);
+
+        // Details
+        if(isEnemy) {
+            // Mask
+            const mask = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.4, 0.85), new THREE.MeshLambertMaterial({color: 0xaa0000}));
+            mask.position.y = -0.1;
+            headGroup.add(mask);
+            
+            // Sword
+            const sword = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.5, 0.2), new THREE.MeshLambertMaterial({color: 0xaaaaaa}));
+            sword.position.set(-0.7, 1, 0.5);
+            sword.rotation.x = Math.PI / 4;
+            group.add(sword);
+        } else {
+            // Cap
+            const cap = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.3, 0.82), new THREE.MeshLambertMaterial({color: 0xe74c3c}));
+            cap.position.y = 0.45;
+            const visor = new THREE.Mesh(new THREE.BoxGeometry(0.82, 0.1, 0.4), new THREE.MeshLambertMaterial({color: 0xe74c3c}));
+            visor.position.set(0, 0.35, 0.5);
+            headGroup.add(cap); headGroup.add(visor);
+            
+            // Backpack
+            const pack = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 0.4), new THREE.MeshLambertMaterial({color: 0x8e44ad}));
+            pack.position.set(0, 1.4, -0.4);
+            group.add(pack);
+        }
         
         // Torso
         const torso = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.6), shirtMat);
@@ -175,28 +212,44 @@
         legR.position.y = -0.4; legR.castShadow = true;
         legPivotR.add(legR);
 
-        group.add(head); group.add(torso); group.add(armL); group.add(armR);
+        group.add(headGroup); group.add(torso); group.add(armL); group.add(armR);
         group.add(legPivotL); group.add(legPivotR);
         
-        group.userData = { armL, armR, legL: legPivotL, legR: legPivotR, walkTime: 0 };
+        group.userData = { armL, armR, legL: legPivotL, legR: legPivotR, walkTime: 0, isBiped: true };
         return group;
     }
 
     function createWolf() {
         const group = new THREE.Group();
-        const furMat = new THREE.MeshLambertMaterial({ color: 0x555555 });
-        const eyeMat = new THREE.MeshLambertMaterial({ color: 0xff0000 }); // red eyes
+        const furMat = new THREE.MeshLambertMaterial({ color: 0x4a4a4a });
+        const eyeMat = new THREE.MeshLambertMaterial({ color: 0xff3333 }); // red eyes
         
         // Body
         const body = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 1.8), furMat);
         body.position.y = 0.8; body.castShadow = true;
         
-        // Head
+        // Head & Ears
+        const headGroup = new THREE.Group();
+        headGroup.position.set(0, 1.2, 1);
         const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.8), furMat);
-        head.position.set(0, 1.2, 1); head.castShadow = true;
+        head.castShadow = true;
+        const earL = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.4, 4), furMat); earL.position.set(-0.2, 0.4, -0.2);
+        const earR = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.4, 4), furMat); earR.position.set(0.2, 0.4, -0.2);
+        headGroup.add(head); headGroup.add(earL); headGroup.add(earR);
         
-        const snout = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.4), new THREE.MeshLambertMaterial({color:0x222222}));
-        snout.position.set(0, 1, 1.4); snout.castShadow = true;
+        // Snout & Eyes
+        const snout = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.3, 0.5), new THREE.MeshLambertMaterial({color:0x222222}));
+        snout.position.set(0, -0.1, 0.5);
+        headGroup.add(snout);
+        const eyeL = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), eyeMat); eyeL.position.set(-0.2, 0.1, 0.4);
+        const eyeR = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1), eyeMat); eyeR.position.set(0.2, 0.1, 0.4);
+        headGroup.add(eyeL); headGroup.add(eyeR);
+        
+        // Tail
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), furMat);
+        tail.position.set(0, 0.9, -1);
+        tail.rotation.x = -Math.PI / 4;
+        group.add(tail);
 
         // Legs
         const legFL = new THREE.Group(); legFL.position.set(-0.3, 0.8, 0.6);
@@ -211,17 +264,17 @@
         const legBR = new THREE.Group(); legBR.position.set(0.3, 0.8, -0.6);
         const l4 = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.8, 0.2), furMat); l4.position.y = -0.4; l4.castShadow=true; legBR.add(l4);
 
-        group.add(body); group.add(head); group.add(snout);
+        group.add(body); group.add(headGroup);
         group.add(legFL); group.add(legFR); group.add(legBL); group.add(legBR);
         
-        group.userData = { l1: legFL, l2: legFR, l3: legBL, l4: legBR, walkTime: 0 };
+        group.userData = { l1: legFL, l2: legFR, l3: legBL, l4: legBR, tail: tail, walkTime: 0, isBiped: false };
         return group;
     }
 
-    function animateWalk(group, speed, isBiped) {
+    function animateWalk(group, speed) {
         group.userData.walkTime += speed;
         const t = group.userData.walkTime;
-        if (isBiped) {
+        if (group.userData.isBiped) {
             group.userData.legL.rotation.x = Math.sin(t) * 0.8;
             group.userData.legR.rotation.x = Math.sin(t + Math.PI) * 0.8;
             group.userData.armL.rotation.x = Math.sin(t + Math.PI) * 0.5;
@@ -232,28 +285,53 @@
             group.userData.l2.rotation.x = Math.sin(t + Math.PI) * 0.6;
             group.userData.l3.rotation.x = Math.sin(t + Math.PI) * 0.6;
             group.userData.l4.rotation.x = Math.sin(t) * 0.6;
+            if(group.userData.tail) group.userData.tail.rotation.y = Math.sin(t*2) * 0.2;
         }
     }
 
     function createTree() {
         const group = new THREE.Group();
-        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3, 5), new THREE.MeshLambertMaterial({color: 0x5c4033}));
-        trunk.position.y = 1.5; trunk.castShadow = true;
+        const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.8, 4, 6), new THREE.MeshLambertMaterial({color: 0x5c4033}));
+        trunk.position.y = 2; trunk.castShadow = true;
         
-        const leaves = new THREE.Mesh(new THREE.ConeGeometry(2.5, 4, 7), new THREE.MeshLambertMaterial({color: 0x2e8b57}));
-        leaves.position.y = 4; leaves.castShadow = true;
+        // Multi-layered leaves
+        const leaves1 = new THREE.Mesh(new THREE.ConeGeometry(3, 5, 7), new THREE.MeshLambertMaterial({color: 0x2e8b57}));
+        leaves1.position.y = 5; leaves1.castShadow = true;
         
-        group.add(trunk); group.add(leaves);
+        const leaves2 = new THREE.Mesh(new THREE.ConeGeometry(2.5, 4, 7), new THREE.MeshLambertMaterial({color: 0x3cb371}));
+        leaves2.position.y = 7; leaves2.castShadow = true;
+        
+        group.add(trunk); group.add(leaves1); group.add(leaves2);
+        
+        // Approximate bounding radius for collision
+        group.userData = { radius: 1.2 }; 
         return group;
     }
 
+    function createRock() {
+        const size = 2 + Math.random() * 4;
+        const geo = new THREE.DodecahedronGeometry(size, 0); // low poly rock
+        // Randomly scale to make it look like a mountain/rock
+        geo.scale(1 + Math.random(), 1 + Math.random()*1.5, 1 + Math.random());
+        const mat = new THREE.MeshLambertMaterial({color: 0x7f8c8d});
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.position.y = size * 0.8;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        
+        mesh.userData = { radius: size * 1.5 };
+        return mesh;
+    }
+
     // Player Object
-    const player = createHuman(0x3498db, 0x2980b9); // Explorer
-    scene.add(player);
+    const playerGroup = new THREE.Group();
+    const playerModel = createHuman('player');
+    playerGroup.add(playerModel);
+    scene.add(playerGroup);
 
     let enemies = [];
     let powerups = [];
-    let trees = [];
+    let scenery = [];
 
     // Resize
     window.addEventListener('resize', () => {
@@ -263,14 +341,19 @@
     });
 
     function spawnScenery(cx, cz, radius) {
-       // Keep ~50 trees around the player dynamically
-       while(trees.length < 50) {
-          let t = createTree();
+       // Keep ~100 scenery objects (trees + rocks) around the player dynamically
+       while(scenery.length < 100) {
+          let isRock = Math.random() < 0.25; // 25% chance to be a large rock/mountain
+          let obj = isRock ? createRock() : createTree();
+          
           let angle = Math.random() * Math.PI * 2;
           let r = 20 + Math.random() * radius; // don't spawn right on top of player
-          t.position.set(cx + Math.cos(angle)*r, 0, cz + Math.sin(angle)*r);
-          scene.add(t);
-          trees.push(t);
+          let x = cx + Math.cos(angle)*r;
+          let z = cz + Math.sin(angle)*r;
+          
+          obj.position.set(x, isRock ? obj.position.y : 0, z);
+          scene.add(obj);
+          scenery.push(obj);
        }
     }
 
@@ -284,45 +367,53 @@
       overlay.style.display = 'none';
       lcModal.style.display = 'none';
       
-      player.position.set(0, 0, 0);
+      playerGroup.position.set(0, 0, 0);
+      velocityY = 0;
+      isJumping = false;
       
       // Clear entities
       enemies.forEach(e => scene.remove(e.mesh));
       powerups.forEach(p => scene.remove(p.mesh));
-      trees.forEach(t => scene.remove(t));
+      scenery.forEach(s => scene.remove(s));
       enemies = [];
       powerups = [];
-      trees = [];
+      scenery = [];
       invulnTimer = 120;
       
-      spawnScenery(0, 0, 100);
+      spawnScenery(0, 0, 150);
     }
 
     function spawnEnemy() {
       const isBandit = Math.random() > 0.5;
-      const mesh = isBandit ? createHuman(0x222222, 0x111111, true) : createWolf();
+      const mesh = isBandit ? createHuman('bandit') : createWolf();
       
       const angle = Math.random() * Math.PI * 2;
-      const dist = 50 + Math.random() * 30;
-      mesh.position.set(player.position.x + Math.cos(angle)*dist, 0, player.position.z + Math.sin(angle)*dist);
+      const dist = 60 + Math.random() * 40; // Spawn further away
+      mesh.position.set(playerGroup.position.x + Math.cos(angle)*dist, 0, playerGroup.position.z + Math.sin(angle)*dist);
       
       scene.add(mesh);
-      enemies.push({ mesh, isBiped: isBandit, speed: 0.15 + Math.random() * 0.08 });
+      enemies.push({ mesh, speed: 0.15 + Math.random() * 0.1 });
     }
 
     function spawnPowerup() {
+      const pGroup = new THREE.Group();
+      
       // Red Apple (Health)
-      const pGeo = new THREE.SphereGeometry(0.5, 8, 8);
+      const pGeo = new THREE.SphereGeometry(0.6, 8, 8);
       const pMat = new THREE.MeshLambertMaterial({ color: 0xff3333 });
       const mesh = new THREE.Mesh(pGeo, pMat);
       mesh.castShadow = true;
       
+      const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.4), new THREE.MeshLambertMaterial({color: 0x5c4033}));
+      stem.position.y = 0.6;
+      pGroup.add(mesh); pGroup.add(stem);
+      
       const angle = Math.random() * Math.PI * 2;
       const dist = 30 + Math.random() * 30;
-      mesh.position.set(player.position.x + Math.cos(angle)*dist, 1, player.position.z + Math.sin(angle)*dist);
+      pGroup.position.set(playerGroup.position.x + Math.cos(angle)*dist, 1, playerGroup.position.z + Math.sin(angle)*dist);
       
-      scene.add(mesh);
-      powerups.push({ mesh });
+      scene.add(pGroup);
+      powerups.push({ mesh: pGroup });
     }
 
     function triggerLeetCode(enemyObj) {
@@ -373,11 +464,26 @@
       }
     }
 
+    // Check collision with scenery
+    function checkCollision(nx, nz) {
+       for(let s of scenery) {
+          let r = s.userData.radius;
+          let dx = nx - s.position.x;
+          let dz = nz - s.position.z;
+          if(dx*dx + dz*dz < r*r) return true;
+       }
+       return false;
+    }
+
     function update() {
       if(state !== 'playing') return;
       
+      // Move Infinite Floor beneath player to hide edges
+      floor.position.x = playerGroup.position.x;
+      floor.position.z = playerGroup.position.z;
+
       // Player Movement
-      const moveSpeed = 0.3;
+      const moveSpeed = 0.35;
       let isMoving = false;
       let moveX = 0; let moveZ = 0;
       
@@ -387,53 +493,88 @@
       if(keys['keyd'] || keys['arrowright']) { moveX += moveSpeed; isMoving = true; }
       
       if(isMoving) {
-         player.position.x += moveX;
-         player.position.z += moveZ;
-         // Rotate player towards moving direction
-         player.rotation.y = Math.atan2(moveX, moveZ);
-         animateWalk(player, 0.3, true);
+         let nextX = playerGroup.position.x + moveX;
+         let nextZ = playerGroup.position.z + moveZ;
+         
+         // Collision Detection (Slide against walls)
+         if(!checkCollision(nextX, playerGroup.position.z)) {
+            playerGroup.position.x = nextX;
+         }
+         if(!checkCollision(playerGroup.position.x, nextZ)) {
+            playerGroup.position.z = nextZ;
+         }
+         
+         // Rotate player
+         playerModel.rotation.y = Math.atan2(moveX, moveZ);
+         animateWalk(playerModel, 0.4);
          
          score += 1;
          if(score % 10 === 0) scoreEl.innerText = score;
       } else {
          // reset pose
-         player.userData.legL.rotation.x = 0;
-         player.userData.legR.rotation.x = 0;
-         player.userData.armL.rotation.x = 0;
-         player.userData.armR.rotation.x = 0;
+         playerModel.userData.legL.rotation.x = 0;
+         playerModel.userData.legR.rotation.x = 0;
+         playerModel.userData.armL.rotation.x = 0;
+         playerModel.userData.armR.rotation.x = 0;
       }
 
-      // Maintain Tree Forest
-      spawnScenery(player.position.x, player.position.z, 120);
-      for(let i=trees.length-1; i>=0; i--) {
-         let t = trees[i];
-         let dist = Math.hypot(t.position.x - player.position.x, t.position.z - player.position.z);
-         if(dist > 150) {
-            scene.remove(t);
-            trees.splice(i, 1);
+      // Jump Logic
+      if(keys['space'] && !isJumping) {
+         velocityY = 0.6;
+         isJumping = true;
+      }
+      
+      playerGroup.position.y += velocityY;
+      if (playerGroup.position.y > 0) {
+         velocityY -= 0.03; // gravity
+      } else {
+         playerGroup.position.y = 0;
+         velocityY = 0;
+         isJumping = false;
+      }
+
+      // Maintain Infinite Scenery
+      spawnScenery(playerGroup.position.x, playerGroup.position.z, 150);
+      for(let i=scenery.length-1; i>=0; i--) {
+         let s = scenery[i];
+         let dist = Math.hypot(s.position.x - playerGroup.position.x, s.position.z - playerGroup.position.z);
+         if(dist > 180) { // Culling distance slightly larger than fog
+            scene.remove(s);
+            scenery.splice(i, 1);
          }
       }
 
       // Invulnerability effect
       if(invulnTimer > 0) {
         invulnTimer--;
-        player.children.forEach(c => {
+        playerModel.children.forEach(c => {
            if(c.material) {
               c.material.transparent = true;
               c.material.opacity = (Math.floor(Date.now() / 100) % 2 === 0) ? 0.3 : 1;
+           } else if(c.children) {
+              c.children.forEach(sub => {
+                 if(sub.material) {
+                    sub.material.transparent = true;
+                    sub.material.opacity = (Math.floor(Date.now() / 100) % 2 === 0) ? 0.3 : 1;
+                 }
+              });
            }
         });
       } else {
-        player.children.forEach(c => { if(c.material) c.material.opacity = 1; });
+        playerModel.children.forEach(c => { 
+           if(c.material) c.material.opacity = 1; 
+           else if(c.children) c.children.forEach(sub => { if(sub.material) sub.material.opacity = 1; });
+        });
       }
 
       // Update Camera (3rd Person View)
-      const idealCameraPos = new THREE.Vector3(player.position.x, player.position.y + 12, player.position.z + 18);
-      camera.position.lerp(idealCameraPos, 0.08);
-      camera.lookAt(player.position.x, player.position.y + 2, player.position.z);
+      // Lerp for smooth tracking, adapt Y based on jump
+      const idealCameraPos = new THREE.Vector3(playerGroup.position.x, playerGroup.position.y + 12, playerGroup.position.z + 18);
+      camera.position.lerp(idealCameraPos, 0.1);
+      camera.lookAt(playerGroup.position.x, playerGroup.position.y + 2, playerGroup.position.z);
 
       // Light follows player
-      dirLight.position.set(player.position.x + 50, 100, player.position.z + 50);
+      dirLight.position.set(playerGroup.position.x + 50, 100, playerGroup.position.z + 50);
 
       // Spawn Logic
       if(Math.random() < 0.02) spawnEnemy();
@@ -443,15 +584,15 @@
       for(let i=enemies.length-1; i>=0; i--) {
         let e = enemies[i];
         
-        const dx = player.position.x - e.mesh.position.x;
-        const dz = player.position.z - e.mesh.position.z;
+        const dx = playerGroup.position.x - e.mesh.position.x;
+        const dz = playerGroup.position.z - e.mesh.position.z;
         const dist = Math.sqrt(dx*dx + dz*dz);
         
         if(dist > 0.5) {
           e.mesh.position.x += (dx/dist) * e.speed;
           e.mesh.position.z += (dz/dist) * e.speed;
           e.mesh.rotation.y = Math.atan2(dx, dz);
-          animateWalk(e.mesh, e.speed * 2, e.isBiped);
+          animateWalk(e.mesh, e.speed * 2);
         }
 
         if(invulnTimer <= 0 && dist < 2.5) {
@@ -459,7 +600,7 @@
            return;
         }
         
-        if(dist > 150) {
+        if(dist > 180) {
            scene.remove(e.mesh);
            enemies.splice(i, 1);
         }
@@ -471,7 +612,7 @@
         p.mesh.rotation.y += 0.05;
         p.mesh.position.y = 1 + Math.sin(Date.now() * 0.005) * 0.5;
 
-        const dist = Math.hypot(player.position.x - p.mesh.position.x, player.position.z - p.mesh.position.z);
+        const dist = Math.hypot(playerGroup.position.x - p.mesh.position.x, playerGroup.position.z - p.mesh.position.z);
 
         if(dist < 2.5) {
            lives++;
@@ -480,7 +621,7 @@
            scoreEl.innerText = score;
            scene.remove(p.mesh);
            powerups.splice(i, 1);
-        } else if(dist > 150) {
+        } else if(dist > 180) {
            scene.remove(p.mesh);
            powerups.splice(i, 1);
         }
