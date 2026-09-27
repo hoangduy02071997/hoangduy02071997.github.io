@@ -293,7 +293,7 @@
       // Auto Shoot
       if(player.cooldown > 0) player.cooldown--;
       if(player.cooldown === 0) {
-        playSound('shoot');
+        playSound('laser');
         let numBullets = player.weaponLevel + 1; // Level 1 -> 2 bullets, Level 8 -> 9 bullets
         let spreadAngle = 0.15; // angle spread per bullet for higher levels
         for(let i=0; i<numBullets; i++) {
@@ -372,6 +372,7 @@
          let t = traps[i];
          if (t.warnTimer > 0) {
             t.warnTimer--;
+            if (t.warnTimer === 0) playSound('laser');
          } else if (t.activeTimer > 0) {
             t.activeTimer--;
             // Check collision with player
