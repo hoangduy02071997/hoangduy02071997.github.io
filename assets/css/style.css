@@ -103,6 +103,27 @@ a { color: var(--text); text-decoration: none; transition: color .2s }
   justify-content: space-between;
   gap: 20px;
 }
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.nav-links a {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--text);
+}
+@media (max-width: 768px) {
+  .d-none-md {
+    display: none !important;
+  }
+}
 .brand {
   display: flex;
   align-items: center;
