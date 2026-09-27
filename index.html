@@ -25,7 +25,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v=2">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -54,9 +54,39 @@
 <div class="menu">
 <a href="#about">About</a><a href="#stack">Stack</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#achievements">Achievements</a><a href="#engineering">Engineering</a><a href="#ai">AI</a><a href="#contact">Contact</a>
 </div>
-<div class="nav-controls"><span class="status"><span class="dot"></span>Open to opportunities</span><select class="lang-select" aria-label="Language"><option value="en">EN</option><option value="vi">VI</option><option value="ja">日本語</option><option value="zh">中文</option><option value="ru">RU</option></select><button class="theme-toggle" type="button" aria-label="Toggle dark/light mode"><i class="icon-moon fa-solid fa-moon"></i><i class="icon-sun fa-solid fa-sun"></i></button><button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false"><span></span></button></div>
+<div class="nav-controls"><span class="status"><span class="dot"></span>Open to opportunities</span><div class="custom-lang-select" tabindex="0" aria-label="Language"><div class="cls-trigger"><span class="cls-flag">🇺🇸</span><span class="cls-text">EN</span><i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px; opacity: 0.7;"></i></div><ul class="cls-options"><li data-value="en"><span class="cls-flag">🇺🇸</span>EN</li><li data-value="vi"><span class="cls-flag">🇻🇳</span>VI</li><li data-value="ja"><span class="cls-flag">🇯🇵</span>日本語</li><li data-value="zh"><span class="cls-flag">🇨🇳</span>中文</li><li data-value="ru"><span class="cls-flag">🇷🇺</span>RU</li><li data-value="es"><span class="cls-flag">🇪🇸</span>ES</li><li data-value="it"><span class="cls-flag">🇮🇹</span>IT</li><li data-value="fr"><span class="cls-flag">🇫🇷</span>FR</li></ul></div><button class="theme-toggle" type="button" aria-label="Toggle dark/light mode"><i class="icon-moon fa-solid fa-moon"></i><i class="icon-sun fa-solid fa-sun"></i></button><button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false"><span></span></button></div>
 </div></nav>
-<div class="drawer-overlay" id="drawerOverlay"></div><aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true"><div class="drawer-head"><div class="drawer-title">Duy Hoàng</div><button class="drawer-close" type="button" aria-label="Close menu">×</button></div><nav class="drawer-links"><a href="#about">About</a><a href="#stack">Stack</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#achievements">Achievements</a><a href="#engineering">Engineering</a><a href="#ai">AI</a><a href="#contact">Contact</a></nav><div class="drawer-lang"><label>Language</label><select class="lang-select" aria-label="Language"><option value="en">English</option><option value="vi">Tiếng Việt</option><option value="ja">日本語</option><option value="zh">中文</option><option value="ru">Русский</option></select></div></aside>
+<div class="drawer-overlay" id="drawerOverlay"></div><aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true"><div class="drawer-head"><div class="drawer-title">Duy Hoàng</div><button class="drawer-close" type="button" aria-label="Close menu">×</button></div><nav class="drawer-links"><a href="#about">About</a><a href="#stack">Stack</a><a href="#experience">Experience</a><a href="#projects">Projects</a><a href="#achievements">Achievements</a><a href="#engineering">Engineering</a><a href="#ai">AI</a><a href="#contact">Contact</a></nav><div class="drawer-lang"><label>Language</label><div class="custom-lang-select" tabindex="0" aria-label="Language"><div class="cls-trigger"><span class="cls-flag">🇺🇸</span><span class="cls-text">English</span><i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: auto; opacity: 0.7;"></i></div><ul class="cls-options"><li data-value="en"><span class="cls-flag">🇺🇸</span>English</li><li data-value="vi"><span class="cls-flag">🇻🇳</span>Tiếng Việt</li><li data-value="ja"><span class="cls-flag">🇯🇵</span>日本語</li><li data-value="zh"><span class="cls-flag">🇨🇳</span>中文</li><li data-value="ru"><span class="cls-flag">🇷🇺</span>Русский</li><li data-value="es"><span class="cls-flag">🇪🇸</span>Español</li><li data-value="it"><span class="cls-flag">🇮🇹</span>Italiano</li><li data-value="fr"><span class="cls-flag">🇫🇷</span>Français</li></ul></div></div></aside>
+
+<!-- Left Sidebar Menu -->
+<div class="left-sidebar-trigger" id="leftSidebarTrigger" aria-label="Open Left Menu">
+  <i class="fa-solid fa-bars"></i>
+</div>
+<aside class="left-sidebar" id="leftSidebar" aria-hidden="true">
+  <button class="left-sidebar-close" id="leftSidebarClose" type="button" aria-label="Close Left Menu">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+  <div class="left-sidebar-profile">
+    <img src="assets/img/avatar.jpg" alt="Duy Hoàng" class="lsp-avatar">
+    <div class="lsp-name">Duy Hoàng</div>
+    <div class="lsp-contact">
+      <a href="tel:+84981041213"><i class="fa-solid fa-phone"></i> +84 981 041 213</a>
+      <a href="mailto:hoangduy02071997@gmail.com"><i class="fa-solid fa-envelope"></i> hoangduy02071997@gmail.com</a>
+    </div>
+  </div>
+  <nav class="left-sidebar-nav">
+    <a href="journey.html">My journey</a>
+    <a href="work-with-me.html">Work with me</a>
+    <a href="blogs.html">Blogs</a>
+  </nav>
+  <div class="left-sidebar-social">
+    <a href="https://www.facebook.com/kiro.bi.5/" aria-label="Facebook" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+    <a href="https://github.com/hoangduy02071997" aria-label="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+    <a href="https://www.linkedin.com/in/duy-hoàng-3783381a8" aria-label="LinkedIn" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+    <a href="#" aria-label="YouTube" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+    <a href="#" aria-label="arXiv" target="_blank" style="display:flex;align-items:center;font-size:14px;font-weight:800;font-family:sans-serif;">arXiv</a>
+  </div>
+</aside>
 
 <main>
 <section id="home"><div class="container hero"><div>
@@ -91,11 +121,11 @@
 <section id="stack"><div class="container"><div class="section-head"><div><div class="kicker">02 — Technology</div><h2>My engineering<br>toolbox.</h2></div><p class="intro">Backend is my primary focus, with strong Node.js/Laravel experience plus Python, and enough frontend, mobile, infrastructure and AI experience to own an entire product when required.</p></div>
 <div class="skills">
 <div class="skill"><h3>Backend / Languages</h3><div class="pills"><span class="pill main">Node.js</span><span class="pill main">NestJS</span><span class="pill main">Laravel</span><span class="pill main">PHP</span><span class="pill main">Python</span><span class="pill">Golang</span><span class="pill">Express</span><span class="pill">Flask</span><span class="pill">Java</span><span class="pill">Spring Boot</span></div></div>
-<div class="skill"><h3>Frontend / Mobile</h3><div class="pills"><span class="pill">ReactJS</span><span class="pill">NextJS</span><span class="pill">React Native</span><span class="pill">JavaScript</span><span class="pill">TailwindCSS</span><span class="pill">Kotlin Native Module</span><span class="pill">SSR / SEO</span></div></div>
-<div class="skill"><h3>DB / Messaging</h3><div class="pills"><span class="pill main">PostgreSQL</span><span class="pill main">MySQL</span><span class="pill">MongoDB</span><span class="pill">Oracle</span><span class="pill">SQL Server</span><span class="pill">Redis</span><span class="pill">Kafka</span><span class="pill">RabbitMQ</span><span class="pill">gRPC</span></div></div>
-<div class="skill"><h3>DevOps / Engineering</h3><div class="pills"><span class="pill">Linux</span><span class="pill">CentOS</span><span class="pill">Bash</span><span class="pill">Nginx</span><span class="pill">PM2</span><span class="pill">Docker</span><span class="pill">Git</span><span class="pill">GitLab CI/CD</span><span class="pill">Autoscaling</span></div></div>
+<div class="skill"><h3>Frontend / Mobile</h3><div class="pills"><span class="pill main">ReactJS</span><span class="pill main">NextJS</span><span class="pill main">React Native</span><span class="pill main">JavaScript</span><span class="pill">TailwindCSS</span><span class="pill">Kotlin Native Module</span><span class="pill main">SSR / SEO</span></div></div>
+<div class="skill"><h3>DB / Messaging</h3><div class="pills"><span class="pill main">PostgreSQL</span><span class="pill main">MySQL</span><span class="pill main">MongoDB</span><span class="pill">Oracle</span><span class="pill">SQL Server</span><span class="pill main">Redis</span><span class="pill">Kafka</span><span class="pill">RabbitMQ</span><span class="pill">gRPC</span></div></div>
+<div class="skill"><h3>DevOps / Engineering</h3><div class="pills"><span class="pill main">Linux</span><span class="pill">CentOS</span><span class="pill main">Bash</span><span class="pill main">Nginx</span><span class="pill">PM2</span><span class="pill">Docker</span><span class="pill main">Git</span><span class="pill">GitLab CI/CD</span><span class="pill">Autoscaling</span></div></div>
 <div class="skill"><h3>AI / LLM</h3><div class="pills"><span class="pill ai">OpenAI API</span><span class="pill ai">GPT</span><span class="pill ai">GPT OSS</span><span class="pill ai">Llama</span><span class="pill ai">Ollama</span><span class="pill ai">LangChain</span><span class="pill ai">LangGraph</span><span class="pill ai">Agentic AI</span><span class="pill ai">Fine-tuning</span><span class="pill ai">Embeddings</span><span class="pill ai">Face Recognition</span></div></div>
-<div class="skill"><h3>Architecture</h3><div class="pills"><span class="pill">REST API</span><span class="pill">Microservices</span><span class="pill">WebSocket</span><span class="pill">Socket.IO</span><span class="pill">Cursor Pagination</span><span class="pill">Caching</span><span class="pill">Circuit Breaker</span><span class="pill">Load Balancing</span><span class="pill">Queue</span><span class="pill">Pub/Sub</span><span class="pill">OOP</span><span class="pill">Design Patterns</span></div></div>
+<div class="skill"><h3>Architecture</h3><div class="pills"><span class="pill main">REST API</span><span class="pill">Microservices</span><span class="pill main">WebSocket</span><span class="pill">Socket.IO</span><span class="pill main">Cursor Pagination</span><span class="pill main">Caching</span><span class="pill main">Circuit Breaker</span><span class="pill">Load Balancing</span><span class="pill main">Queue</span><span class="pill main">Pub/Sub</span><span class="pill main">OOP</span><span class="pill main">Design Patterns</span></div></div>
 </div>
 <div class="kg-wrapper">
 <div class="kg-header"><i class="fa-solid fa-diagram-project"></i> Knowledge Graph — Skills & Connections</div>
@@ -189,7 +219,18 @@
 
 <section id="contact"><div class="container contact"><div class="contact-box"><span class="eyebrow">Contact</span><h2 style="margin-top:18px">Let's build something useful.</h2><p>I'm interested in Backend / Full-stack opportunities where I can contribute to system design, API development, performance optimization, realtime systems and AI-powered products.</p><div class="contact-meta"><div class="meta"><b>Phone</b><span><a href="tel:+84981041213">0981 041 213</a></span></div><div class="meta"><b>Email</b><span><a href="mailto:hoangduy02071997@gmail.com">hoangduy02071997@gmail.com</a></span></div><div class="meta"><b>Location</b><span>TPHCM, Vietnam</span></div><div class="meta"><b>Website</b><span><a href="https://hoangduy02071997.github.io" target="_blank" rel="noopener">hoangduy02071997.github.io</a></span></div></div><div class="contact-actions"><a class="btn primary" href="mailto:hoangduy02071997@gmail.com">Email me ↗</a><a class="btn" href="tel:+84981041213">Call ↗</a><a class="btn" href="https://hoangduy02071997.github.io" target="_blank" rel="noopener">Website ↗</a></div><p style="font-size:11px;margin-top:24px;margin-bottom:0;color:#697486">Hoàng Duy · Bachelor of IT, Van Hien University · TOEIC 550 · MCSA Certified</p></div></div></section>
 </main>
-<footer><div class="container">© 2026 Duy Hoàng · Backend / Full-stack Engineer</div></footer>
+<footer>
+  <div class="container footer-content">
+    <div class="footer-social">
+      <a href="https://www.facebook.com/kiro.bi.5/" aria-label="Facebook" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="https://github.com/hoangduy02071997" aria-label="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/duy-hoàng-3783381a8" aria-label="LinkedIn" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+      <a href="#" aria-label="YouTube" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+      <a href="#" aria-label="arXiv" target="_blank" style="display:flex;align-items:center;font-size:12px;font-weight:800;font-family:sans-serif;">arXiv</a>
+    </div>
+    <div class="footer-copyright">© 2026 Duy Hoàng · Backend / Full-stack Engineer</div>
+  </div>
+</footer>
 
 
 
@@ -203,6 +244,15 @@
   <img id="lightbox-img" src="" alt="Lightbox Image">
   <div id="lightbox-counter" class="lightbox-counter"></div>
   <div id="lightbox-thumbnails" class="lightbox-thumbnails"></div>
+</div>
+<!-- Floating Contacts -->
+<div class="floating-contacts">
+  <a href="https://zalo.me/0981041213" target="_blank" class="fc-btn fc-zalo" aria-label="Zalo">
+    <span style="font-size:10.5px;font-weight:800;letter-spacing:0.3px;font-family:sans-serif;">Zalo</span>
+  </a>
+  <a href="https://t.me/+84981041213" target="_blank" class="fc-btn fc-telegram" aria-label="Telegram">
+    <i class="fa-brands fa-telegram"></i>
+  </a>
 </div>
 
 </body>

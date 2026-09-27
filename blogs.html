@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Blogs — Duy Hoàng</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=2">
+</head>
+<body>
+  <nav class="nav"><div class="container nav-inner">
+    <a class="brand" href="index.html"><span class="nav-avatar"><img src="assets/img/avatar.jpg" alt="Duy Hoàng"></span><span>Duy Hoàng<small>Backend / Full-stack Engineer</small></span></a>
+    <div class="menu">
+      <a href="#latest">Latest</a><a href="#popular">Popular</a><a href="#archives">Archives</a>
+    </div>
+    <div class="nav-controls"><span class="status"><span class="dot"></span>Open to opportunities</span><div class="custom-lang-select" tabindex="0" aria-label="Language"><div class="cls-trigger"><span class="cls-flag">🇺🇸</span><span class="cls-text">EN</span><i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px; opacity: 0.7;"></i></div><ul class="cls-options"><li data-value="en"><span class="cls-flag">🇺🇸</span>EN</li><li data-value="vi"><span class="cls-flag">🇻🇳</span>VI</li><li data-value="ja"><span class="cls-flag">🇯🇵</span>日本語</li><li data-value="zh"><span class="cls-flag">🇨🇳</span>中文</li><li data-value="ru"><span class="cls-flag">🇷🇺</span>RU</li><li data-value="es"><span class="cls-flag">🇪🇸</span>ES</li><li data-value="it"><span class="cls-flag">🇮🇹</span>IT</li><li data-value="fr"><span class="cls-flag">🇫🇷</span>FR</li></ul></div><button class="theme-toggle" type="button" aria-label="Toggle dark/light mode"><i class="icon-moon fa-solid fa-moon"></i><i class="icon-sun fa-solid fa-sun"></i></button><button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false"><span></span></button></div>
+  </div></nav>
+  
+  <div class="drawer-overlay" id="drawerOverlay"></div><aside class="mobile-drawer" id="mobileDrawer" aria-hidden="true"><div class="drawer-head"><div class="drawer-title">Duy Hoàng</div><button class="drawer-close" type="button" aria-label="Close menu">×</button></div><nav class="drawer-links"><a href="#latest">Latest</a><a href="#popular">Popular</a><a href="#archives">Archives</a></nav><div class="drawer-lang"><label>Language</label><div class="custom-lang-select" tabindex="0" aria-label="Language"><div class="cls-trigger"><span class="cls-flag">🇺🇸</span><span class="cls-text">English</span><i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: auto; opacity: 0.7;"></i></div><ul class="cls-options"><li data-value="en"><span class="cls-flag">🇺🇸</span>English</li><li data-value="vi"><span class="cls-flag">🇻🇳</span>Tiếng Việt</li><li data-value="ja"><span class="cls-flag">🇯🇵</span>日本語</li><li data-value="zh"><span class="cls-flag">🇨🇳</span>中文</li><li data-value="ru"><span class="cls-flag">🇷🇺</span>Русский</li><li data-value="es"><span class="cls-flag">🇪🇸</span>Español</li><li data-value="it"><span class="cls-flag">🇮🇹</span>Italiano</li><li data-value="fr"><span class="cls-flag">🇫🇷</span>Français</li></ul></div></div></aside>
+  
+  <!-- Left Sidebar Menu -->
+  <div class="left-sidebar-trigger" id="leftSidebarTrigger" aria-label="Open Left Menu">
+    <i class="fa-solid fa-bars"></i>
+  </div>
+  <aside class="left-sidebar" id="leftSidebar" aria-hidden="true">
+    <button class="left-sidebar-close" id="leftSidebarClose" type="button" aria-label="Close Left Menu">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+    <div class="left-sidebar-profile">
+      <img src="assets/img/avatar.jpg" alt="Duy Hoàng" class="lsp-avatar">
+      <div class="lsp-name">Duy Hoàng</div>
+      <div class="lsp-contact">
+        <a href="tel:+84981041213"><i class="fa-solid fa-phone"></i> +84 981 041 213</a>
+        <a href="mailto:hoangduy02071997@gmail.com"><i class="fa-solid fa-envelope"></i> hoangduy02071997@gmail.com</a>
+      </div>
+    </div>
+    <nav class="left-sidebar-nav">
+      <a href="journey.html">My journey</a>
+      <a href="work-with-me.html">Work with me</a>
+      <a href="blogs.html">Blogs</a>
+    </nav>
+    <div class="left-sidebar-social">
+      <a href="https://www.facebook.com/kiro.bi.5/" aria-label="Facebook" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="https://github.com/hoangduy02071997" aria-label="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/duy-hoàng-3783381a8" aria-label="LinkedIn" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+      <a href="#" aria-label="YouTube" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+      <a href="#" aria-label="arXiv" target="_blank" style="display:flex;align-items:center;font-size:14px;font-weight:800;font-family:sans-serif;">arXiv</a>
+    </div>
+  </aside>
+
+  <main>
+    <section id="latest" style="padding: 120px 20px; text-align: center; min-height: 50vh;">
+      <h1 class="hero-title" style="font-size: 3rem; margin-bottom: 20px;">Blogs</h1>
+      <p class="body-text" style="max-width: 600px; margin: 0 auto; color: var(--text-muted);">
+        A place for my technical writings, research notes, and thoughts on backend engineering.
+      </p>
+      <br>
+      <a href="index.html" class="btn" style="margin-top: 30px;">← Back to Home</a>
+    </section>
+    <section id="popular" style="min-height: 50vh; display: flex; align-items: center; justify-content: center;"><h2 class="section-title">Popular</h2></section>
+    <section id="archives" style="min-height: 50vh; display: flex; align-items: center; justify-content: center;"><h2 class="section-title">Archives</h2></section>
+  </main>
+  
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-social">
+        <a href="https://www.facebook.com/kiro.bi.5/" aria-label="Facebook" target="_blank"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="https://github.com/hoangduy02071997" aria-label="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/duy-hoàng-3783381a8" aria-label="LinkedIn" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+        <a href="#" aria-label="YouTube" target="_blank"><i class="fa-brands fa-youtube"></i></a>
+        <a href="#" aria-label="arXiv" target="_blank" style="display:flex;align-items:center;font-size:12px;font-weight:800;font-family:sans-serif;">arXiv</a>
+      </div>
+      <div class="footer-copyright">© 2026 Duy Hoàng · Backend / Full-stack Engineer</div>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js"></script>
+</body>
+</html>
