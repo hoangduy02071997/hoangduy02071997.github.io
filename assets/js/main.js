@@ -45,6 +45,10 @@ function setLanguage(lang){
       else li.classList.remove('active');
     });
   });
+  document.querySelectorAll('.lang-content').forEach(el => {
+    if(el.getAttribute('data-lang') === lang) el.style.display = 'block';
+    else el.style.display = 'none';
+  });
   localStorage.setItem('duyPortfolioLang',lang);
 }
 
