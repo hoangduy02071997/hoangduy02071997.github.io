@@ -24,6 +24,7 @@
   --drawer-bg: rgba(9,12,20,.98);
   --terminal-bg: rgba(10,14,22,.88);
   --gradient-text: linear-gradient(100deg,#fff 15%,#b19fff 55%,#75ddc8 90%);
+  --glass-bg: rgba(9,12,20,.85);
   color-scheme: dark;
 }
 
@@ -48,6 +49,7 @@
   --drawer-bg: rgba(245,246,250,.98);
   --terminal-bg: rgba(240,242,248,.95);
   --gradient-text: linear-gradient(100deg,#1a1d26 15%,#6d4fe8 55%,#1db99a 90%);
+  --glass-bg: rgba(245,246,250,.95);
   color-scheme: light;
 }
 
