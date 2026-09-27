@@ -257,6 +257,8 @@
            <button class="tool-tab" onclick="openTool('jwt', this)"><i class="fa-solid fa-lock-open"></i> JWT Decoder</button>
            <button class="tool-tab" onclick="openTool('time', this)"><i class="fa-solid fa-clock"></i> Epoch Converter</button>
            <button class="tool-tab" onclick="openTool('url', this)"><i class="fa-solid fa-link"></i> URL Encode/Decode</button>
+           <button class="tool-tab" onclick="openTool('skills', this)"><i class="fa-solid fa-robot"></i> Agent Skills</button>
+           <button class="tool-tab" onclick="openTool('rules', this)"><i class="fa-solid fa-scroll"></i> Dev Rules</button>
         </div>
         
         <!-- Content Area -->
@@ -336,6 +338,85 @@
               <textarea id="url-output" class="tool-textarea" style="height:150px; margin-top:15px; background:rgba(0,0,0,0.5);" readonly placeholder="Result..."></textarea>
            </div>
            
+         <!-- Agent Skills -->
+         <div id="tool-skills" class="tool-panel">
+            <h3><i class="fa-solid fa-robot"></i> Agent Skills</h3>
+            <p style="margin-bottom: 20px; line-height: 1.6; color: var(--dim);">
+               A curated collection of top AI agent skills and custom instructions for developers.
+            </p>
+            
+            <div style="background: var(--btn-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--purple);">
+               <h4 style="margin: 0 0 10px 0; color: var(--purple);">UI/UX Promax Skill</h4>
+               <p style="margin: 0 0 15px 0; font-size: 14.5px; color: var(--text);">
+                  Advanced instructions for AI agents to generate premium, responsive, and highly aesthetic glassmorphism UIs. Focuses on animations, color harmony, and micro-interactions.
+               </p>
+               <a href="https://github.com/nextlevelbuilder/ui-ux-pro-max-skill" target="_blank" class="tool-btn" style="font-size: 13px; padding: 8px 16px; text-decoration: none;"><i class="fa-brands fa-github"></i> View Repository</a>
+            </div>
+            
+            <div style="background: var(--btn-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #f39c12;">
+               <h4 style="margin: 0 0 10px 0; color: #f39c12;">Production Agent Skills</h4>
+               <p style="margin: 0 0 15px 0; font-size: 14.5px; color: var(--text);">
+                  Addy Osmani's highly popular repository focusing on production-grade engineering skills for AI coding agents. Includes advanced debugging, testing, and system design instructions.
+               </p>
+               <a href="https://github.com/addyosmani/agent-skills" target="_blank" class="tool-btn" style="font-size: 13px; padding: 8px 16px; text-decoration: none;"><i class="fa-brands fa-github"></i> View Repository</a>
+            </div>
+
+            <div style="background: var(--btn-bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid #3498db;">
+               <h4 style="margin: 0 0 10px 0; color: #3498db;">Anthropic Official Skills</h4>
+               <p style="margin: 0 0 15px 0; font-size: 14.5px; color: var(--text);">
+                  The official repository by Anthropic containing a core library of verified skills, tooling, and examples for Claude to perform robust tasks across the file system and network.
+               </p>
+               <a href="https://github.com/anthropics/skills" target="_blank" class="tool-btn" style="font-size: 13px; padding: 8px 16px; text-decoration: none;"><i class="fa-brands fa-github"></i> View Repository</a>
+            </div>
+         </div>
+
+         <!-- Dev Rules -->
+         <div id="tool-rules" class="tool-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+               <h3 style="margin: 0;"><i class="fa-solid fa-scroll"></i> Developer Rules.md</h3>
+               <div style="display: flex; gap: 10px;">
+                  <button class="tool-btn tool-btn-secondary" onclick="copyRules()" style="padding: 8px 12px; font-size: 12px;"><i class="fa-solid fa-copy"></i> Copy</button>
+                  <button class="tool-btn tool-btn-success" onclick="downloadRules()" style="padding: 8px 12px; font-size: 12px;"><i class="fa-solid fa-download"></i> Download</button>
+               </div>
+            </div>
+            <textarea id="rules-md" class="tool-textarea" style="height: 400px; font-family: 'Fira Code', monospace; font-size: 14px; background: rgba(0,0,0,0.2);" readonly># Backend & Architecture
+
+## OOP & SOLID
+- Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.
+- Always program to interfaces, not implementations.
+
+## Design Patterns
+- Use patterns (Factory, Strategy, Repository, Observer) where they reduce coupling, not just for the sake of using them.
+
+## Clean Architecture
+- Isolate domain logic from framework and DB logic. Data flows inward.
+- Flow: Controllers/Handlers -> Use Cases -> Domain Entities.
+
+## Security (OWASP Top 10)
+- Never trust user input. Always sanitize and validate.
+- Parameterize SQL queries (prevent SQLi).
+- Use secure session management and CSRF tokens.
+- Hash passwords using Argon2 or bcrypt.
+
+# Frontend Best Practices
+
+## Component Reusability
+- Build dumb UI components and smart container components.
+- Keep UI state separate from business logic.
+
+## Performance
+- Lazy load images and routes. Debounce API calls.
+- Avoid excessive re-renders by using proper memoization (e.g., React.memo, useMemo).
+
+## Accessibility (a11y)
+- Semantic HTML tags (nav, main, article).
+- Always use `alt` tags on images and `aria-labels` on icon buttons.
+- Ensure high color contrast.
+
+## Clean Code
+- Avoid deeply nested callbacks (callback hell). Use async/await.
+- Adopt a consistent naming convention (camelCase for variables, PascalCase for components).</textarea>
+         </div>
         </div>
       </div>
     </section>
@@ -482,6 +563,27 @@
        } catch(e) {
           document.getElementById('url-output').value = "Error: Malformed URI component.";
        }
+    }
+    
+    // Dev Rules
+    function copyRules() {
+       const text = document.getElementById('rules-md').value;
+       navigator.clipboard.writeText(text).then(() => {
+          alert('Copied to clipboard!');
+       }).catch(err => {
+          console.error('Failed to copy text: ', err);
+       });
+    }
+    
+    function downloadRules() {
+       const text = document.getElementById('rules-md').value;
+       const blob = new Blob([text], { type: 'text/markdown' });
+       const a = document.createElement('a');
+       a.href = URL.createObjectURL(blob);
+       a.download = 'developer_rules.md';
+       document.body.appendChild(a);
+       a.click();
+       document.body.removeChild(a);
     }
   </script>
 
