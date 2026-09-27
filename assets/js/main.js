@@ -84,6 +84,9 @@ const modalTranslations = {
 
 const projectDetails = {
   "POS Ecommerce System — Multitenant": {
+    teamSize: "1",
+    company: "Product (Personal / Company)",
+    images: [],
     type: { vi: "Dự án cá nhân / Công ty (Private Source)", en: "Personal / Company (Private Source)", ja: "個人/企業 (プライベートソース)", zh: "个人/公司 (私有源码)", ru: "Личный/корпоративный (Закрытый исходный код)" },
     link: "Internal / Live Domain (Restricted)",
     role: "Product Owner, Maintainer & Fullstack Developer",
@@ -92,6 +95,9 @@ const projectDetails = {
     lessons: { vi: "Quản lý trạng thái phân tán yêu cầu tính nhất quán cao. Dùng Kafka cho kiến trúc event-driven và Redis Pub/Sub để đồng bộ hóa realtime giữa POS mobile và Backend.", en: "Managing distributed state requires strict consistency. Used Kafka for event-driven architecture and Redis Pub/Sub for realtime synchronization." }
   },
   "Private Chat System": {
+    teamSize: "2",
+    company: "Personal",
+    images: [],
     type: { vi: "Dự án cá nhân (Private Source)", en: "Personal Project (Private Source)", ja: "個人プロジェクト", zh: "个人项目", ru: "Личный проект" },
     link: "Internal Domain (Restricted)",
     role: "Product Owner, Maintainer & Fullstack Developer",
@@ -100,6 +106,9 @@ const projectDetails = {
     lessons: { vi: "Scale hệ thống WebSockets với Redis Adapter. Áp dụng Cursor Pagination và đánh Index theo mốc thời gian để truy xuất mượt mà.", en: "Scaling WebSockets with Redis Adapter. Applied Cursor Pagination and time-based indexing for smooth retrieval." }
   },
   "POS HT Official Coffee": {
+    teamSize: "1",
+    company: "HT Group",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "https://htofficial.vn (Live Domain)",
     role: "Fullstack Developer",
@@ -108,6 +117,9 @@ const projectDetails = {
     lessons: { vi: "Kết nối công nghệ Web/Mobile với phần cứng Native dễ gây rò rỉ bộ nhớ. Quản lý luồng phần cứng tối ưu.", en: "Connecting Web/Mobile with Native hardware risks memory leaks. Managed hardware threads optimally." }
   },
   "Activation Management": {
+    teamSize: "3",
+    company: "DR DIGITAL COMPANY",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "https://drdigital.vn (Live Domain)",
     role: "Backend Developer",
@@ -116,6 +128,9 @@ const projectDetails = {
     lessons: { vi: "Thiết kế kiến trúc đồng bộ Offline-First giữa Mobile và Server cho đội ngũ ngoài thị trường có mạng yếu.", en: "Designed Offline-First synchronization architecture for field teams with poor network." }
   },
   "Check-in / Face Recognition": {
+    teamSize: "1",
+    company: "HT Group",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal System (HT Group)",
     role: "Fullstack Developer",
@@ -124,6 +139,9 @@ const projectDetails = {
     lessons: { vi: "Tối ưu hoá đóng gói model AI thành microservice độc lập, tránh nghẽn khi xử lý vector embeddings.", en: "Packaged AI models as independent microservices to avoid bottlenecks during vector embedding processing." }
   },
   "Support Chatbot GPT": {
+    teamSize: "1",
+    company: "Personal",
+    images: [],
     type: { vi: "Dự án cá nhân (Private Source)", en: "Personal Project (Private Source)", ja: "個人プロジェクト", zh: "个人项目", ru: "Личный проект" },
     link: "Internal Product",
     role: "Developer",
@@ -132,6 +150,9 @@ const projectDetails = {
     lessons: { vi: "Dùng LangChain và Vector Database (RAG) giải quyết giới hạn Token, giúp Chatbot nhớ dữ liệu dài.", en: "Used LangChain and Vector Database (RAG) to solve Token limits and retain long-term memory." }
   },
   "Ecommerce Website": {
+    teamSize: "2",
+    company: "Personal / Private Client",
+    images: [],
     type: { vi: "Dự án cá nhân / Freelance", en: "Personal / Freelance Project", ja: "個人/フリーランスプロジェクト", zh: "个人/自由职业项目", ru: "Личный / фриланс проект" },
     link: "Private Client (Live Domain)",
     role: "Fullstack Developer",
@@ -140,6 +161,9 @@ const projectDetails = {
     lessons: { vi: "Thấy rõ tác hại N+1 Query. Áp dụng Redis Caching giảm 80% tải Database lúc cao điểm.", en: "Saw N+1 Query impacts. Applied Redis Caching to reduce peak Database load by 80%." }
   },
   "Heineken System": {
+    teamSize: "5",
+    company: "3Forcom",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal System (Restricted)",
     role: "Backend Developer",
@@ -148,6 +172,9 @@ const projectDetails = {
     lessons: { vi: "Xử lý lượng dữ liệu nhập đồng loạt. Cải thiện tối ưu Transaction và Locking trong Database.", en: "Handled simultaneous data inputs. Improved Transaction optimization and DB Locking." }
   },
   "Gumac — CRM / Ecommerce": {
+    teamSize: "6",
+    company: "3Forcom",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "https://gumac.vn (Live Domain)",
     role: "Backend Developer",
@@ -156,6 +183,9 @@ const projectDetails = {
     lessons: { vi: "Kiến trúc Event-Driven giúp decouple các service, đảm bảo hệ thống không sập dây chuyền.", en: "Event-Driven architecture decoupled services, preventing cascading failures." }
   },
   "Daikin Ecommerce": {
+    teamSize: "5",
+    company: "3Forcom",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal / Live",
     role: "Backend Developer",
@@ -164,6 +194,9 @@ const projectDetails = {
     lessons: { vi: "Cải thiện viết Clean Code và thiết kế RESTful API theo chuẩn doanh nghiệp.", en: "Improved Clean Code practices and enterprise RESTful API design." }
   },
   "VCBS — Vietcombank Securities": {
+    teamSize: "7",
+    company: "3Forcom",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "https://vcbs.com.vn (Live Domain)",
     role: "Backend Developer",
@@ -172,6 +205,9 @@ const projectDetails = {
     lessons: { vi: "Thiết kế DB chặt chẽ, sử dụng ACID Transaction và xử lý đồng thời (Concurrency) an toàn.", en: "Implemented strict DB design, ACID Transactions, and safe concurrency handling." }
   },
   "E-Buzz Chat Application": {
+    teamSize: "4",
+    company: "LOFIVN COMPANY",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal System",
     role: "Fullstack Developer",
@@ -180,6 +216,9 @@ const projectDetails = {
     lessons: { vi: "Sử dụng MongoDB kết hợp Redis để tăng tốc độ phát (broadcast) sự kiện qua Socket.IO.", en: "Used MongoDB with Redis to accelerate event broadcasting via Socket.IO." }
   },
   "Dating Application": {
+    teamSize: "6",
+    company: "LOFIVN COMPANY",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal System",
     role: "Fullstack Developer",
@@ -188,6 +227,9 @@ const projectDetails = {
     lessons: { vi: "Tối ưu truy vấn toạ độ không gian (Geospatial Indexing) trong MongoDB để tìm kiếm nhanh chóng.", en: "Optimized Geospatial Indexing in MongoDB for fast nearby user searches." }
   },
   "Tarot Application": {
+    teamSize: "5",
+    company: "LOFIVN COMPANY",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal System",
     role: "Mobile Developer & Fullstack",
@@ -196,6 +238,9 @@ const projectDetails = {
     lessons: { vi: "Học quản lý state trên ứng dụng Mobile phức tạp và tối ưu render UI bằng React Native.", en: "Learned complex Mobile state management and optimized UI render performance with React Native." }
   },
   "B2C Ecommerce": {
+    teamSize: "8",
+    company: "LOFIVN COMPANY",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Live Domain",
     role: "Developer & Maintainer",
@@ -204,6 +249,9 @@ const projectDetails = {
     lessons: { vi: "Xử lý tồn kho trong Flash Sale cần áp dụng Redis Atomic Locks để chống over-selling.", en: "Handling Flash Sale inventory requires Redis Atomic Locks to prevent over-selling." }
   },
   "LofiWee — Page Builder Platform": {
+    teamSize: "11",
+    company: "LOFIVN COMPANY",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal Platform",
     role: "Manager Frontend & Maintainer",
@@ -212,6 +260,9 @@ const projectDetails = {
     lessons: { vi: "Quản lý JSON khổng lồ đòi hỏi tối ưu Redux Store sâu sắc. Áp dụng Autoscaling với Kubernetes.", en: "Managing massive JSON requires deep Redux Store optimization. Applied Autoscaling with Kubernetes." }
   },
   "CMS Management": {
+    teamSize: "5",
+    company: "SUM SERVICES COMPANY",
+    images: [],
     type: { vi: "Dự án công ty (Private Source)", en: "Company Project (Private Source)", ja: "企業プロジェクト", zh: "公司项目", ru: "Корпоративный проект" },
     link: "Internal",
     role: "Frontend Developer",
@@ -246,21 +297,69 @@ function openProjectModal(title) {
     </div>
   ` : '';
   
-  const techSection = techText ? `
-    <div class="pm-section">
-      <h4><i class="fa-solid fa-code"></i> ${t.tech || modalTranslations.en.tech}</h4>
-      <p>${techText}</p>
-    </div>
-  ` : '';
+  let techSection = '';
+  if (techText) {
+    const techItems = techText.split('. ').filter(t => t.trim()).map(t => {
+      let str = t;
+      if (str.endsWith('.')) str = str.slice(0, -1);
+      const parts = str.split(': ');
+      if (parts.length > 1) {
+        return `<li><strong>${parts[0]}:</strong> ${parts.slice(1).join(': ')}</li>`;
+      }
+      return `<li>${str}</li>`;
+    }).join('');
+    
+    techSection = `
+      <div class="pm-section">
+        <h4><i class="fa-solid fa-code"></i> ${t.tech || modalTranslations.en.tech}</h4>
+        <ul style="margin:0; padding-left:20px; color:var(--muted); font-size:15px; line-height:1.7;">
+          ${techItems}
+        </ul>
+      </div>
+    `;
+  }
   
+  const teamSizeLabel = t.teamSize || (currentLang === 'vi' ? 'Quy mô nhóm' : 'Team Size');
+  const companyLabel = t.company || (currentLang === 'vi' ? 'Công ty / Khách hàng' : 'Company / Customer');
+  const imagesLabel = t.images || (currentLang === 'vi' ? 'Hình ảnh dự án' : 'Project Images');
+
+  let imagesSection = '';
+  if (data.images && data.images.length > 0) {
+    const imgs = data.images.map(img => `<img src="${img}" alt="Project Image" style="width:100%; border-radius:8px; border:1px solid var(--line); margin-bottom:8px;">`).join('');
+    imagesSection = `
+      <div class="pm-section">
+        <h4><i class="fa-solid fa-images"></i> ${imagesLabel}</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+          ${imgs}
+        </div>
+      </div>
+    `;
+  }
+
   modalBody.innerHTML = `
-    <h2 class="pm-title">${title}</h2>
-    <div class="pm-meta">
-      <div><i class="fa-solid fa-user-gear"></i> <strong>${t.role}:</strong> ${data.role}</div>
-      <div><i class="fa-solid fa-building-lock"></i> <strong>${t.type}:</strong> ${typeText}</div>
-    </div>
+    <h2 class="pm-title" style="margin-bottom: 24px;">${title}</h2>
     
     ${privateNotice}
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; margin-bottom: 24px;">
+      <div class="pm-section" style="margin-bottom: 0;">
+        <h4><i class="fa-solid fa-user-gear"></i> ${t.role}</h4>
+        <p>${data.role}</p>
+      </div>
+      <div class="pm-section" style="margin-bottom: 0;">
+        <h4><i class="fa-solid fa-building-lock"></i> ${t.type}</h4>
+        <p>${typeText}</p>
+      </div>
+      <div class="pm-section" style="margin-bottom: 0;">
+        <h4><i class="fa-solid fa-users"></i> ${teamSizeLabel}</h4>
+        <p>${data.teamSize || 'N/A'}</p>
+      </div>
+      <div class="pm-section" style="margin-bottom: 0;">
+        <h4><i class="fa-solid fa-building"></i> ${companyLabel}</h4>
+        <p>${data.company || 'N/A'}</p>
+      </div>
+    </div>
+    
     ${techSection}
     
     <div class="pm-section">
@@ -272,6 +371,8 @@ function openProjectModal(title) {
       <h4><i class="fa-solid fa-lightbulb"></i> ${t.lessons}</h4>
       <p>${lesText}</p>
     </div>
+    
+    ${imagesSection}
     
     <a href="#" class="pm-link" onclick="event.preventDefault()"><i class="fa-solid fa-globe"></i> ${data.link}</a>
   `;
@@ -389,4 +490,60 @@ if (translations.ru) Object.assign(translations.ru, {
   "Managed company devices and network and provided hosting for development environments including Dev, Staging and UAT.": "Управление устройствами и сетью компании, предоставление хостинга для Dev, Staging и UAT.",
   "TOEIC 550": "TOEIC 550",
   "MCSA (Microsoft Certified Solutions Associate)": "MCSA (Microsoft Certified Solutions Associate)"
+});
+
+
+// --- Missing Translations (Certifications & Research Note) ---
+if (translations.vi) Object.assign(translations.vi, {
+  "Certifications": "Chứng chỉ",
+  "Research Note:": "Ghi chú nghiên cứu:",
+  "Deeply studied and implemented the": "Đã nghiên cứu chuyên sâu và tự triển khai",
+  "Transformer algorithm": "thuật toán Transformer",
+  "based on the paper": "dựa trên bài báo",
+  '"Attention Is All You Need" (arXiv)': '"Attention Is All You Need" (arXiv)'
+});
+
+if (translations.ja) Object.assign(translations.ja, {
+  "Certifications": "資格",
+  "Research Note:": "研究ノート:",
+  "Deeply studied and implemented the": "深く研究し実装した",
+  "Transformer algorithm": "Transformer アルゴリズム",
+  "based on the paper": "論文に基づく",
+  '"Attention Is All You Need" (arXiv)': '"Attention Is All You Need" (arXiv)'
+});
+
+if (translations.zh) Object.assign(translations.zh, {
+  "Certifications": "认证",
+  "Research Note:": "研究说明:",
+  "Deeply studied and implemented the": "深入研究并实现了",
+  "Transformer algorithm": "Transformer 算法",
+  "based on the paper": "基于论文",
+  '"Attention Is All You Need" (arXiv)': '"Attention Is All You Need" (arXiv)'
+});
+
+if (translations.ru) Object.assign(translations.ru, {
+  "Certifications": "Сертификаты",
+  "Research Note:": "Исследовательская заметка:",
+  "Deeply studied and implemented the": "Глубоко изучил и реализовал",
+  "Transformer algorithm": "алгоритм Transformer",
+  "based on the paper": "на основе статьи",
+  '"Attention Is All You Need" (arXiv)': '"Attention Is All You Need" (arXiv)'
+});
+
+
+// --- Slogan Translations ---
+if (translations.vi) Object.assign(translations.vi, {
+  "I will strive and learn a lot to improve my qualifications and contribute more to the company's development. Along with that, I hope to be able to take on greater responsibilities. I know that this process will not be easy or quick, but I am determined and ready to move forward. I will reach new heights and always maintain my direction.": "Tôi sẽ luôn nỗ lực học hỏi để nâng cao năng lực chuyên môn và đóng góp nhiều hơn cho sự phát triển của công ty. Cùng với đó, tôi hy vọng có thể đảm nhận những trách nhiệm lớn lao hơn. Tôi biết quá trình này sẽ không dễ dàng hay nhanh chóng, nhưng tôi đã quyết tâm và sẵn sàng tiến bước. Tôi sẽ đạt đến những đỉnh cao mới và luôn giữ vững định hướng của mình."
+});
+
+if (translations.ja) Object.assign(translations.ja, {
+  "I will strive and learn a lot to improve my qualifications and contribute more to the company's development. Along with that, I hope to be able to take on greater responsibilities. I know that this process will not be easy or quick, but I am determined and ready to move forward. I will reach new heights and always maintain my direction.": "専門性を高め、会社の発展により一層貢献できるよう、常に努力し学び続けます。それとともに、より大きな責任を担えるようになることを望んでいます。この過程が簡単でも短期間でもないことは承知していますが、私は決意を固め、前進する準備ができています。新たな高みに到達し、常に自分の方向性を保ち続けます。"
+});
+
+if (translations.zh) Object.assign(translations.zh, {
+  "I will strive and learn a lot to improve my qualifications and contribute more to the company's development. Along with that, I hope to be able to take on greater responsibilities. I know that this process will not be easy or quick, but I am determined and ready to move forward. I will reach new heights and always maintain my direction.": "我将不断努力学习，以提高我的专业能力，为公司的发展做出更多贡献。与此同时，我希望能承担更大的责任。我知道这个过程不会轻松，也不会一蹴而就，但我已下定决心并准备好向前迈进。我将攀登新的高峰，并始终保持我的方向。"
+});
+
+if (translations.ru) Object.assign(translations.ru, {
+  "I will strive and learn a lot to improve my qualifications and contribute more to the company's development. Along with that, I hope to be able to take on greater responsibilities. I know that this process will not be easy or quick, but I am determined and ready to move forward. I will reach new heights and always maintain my direction.": "Я буду постоянно стремиться к обучению, чтобы повысить свою квалификацию и вносить больший вклад в развитие компании. Вместе с тем, я надеюсь брать на себя более серьезные обязанности. Я знаю, что этот процесс не будет легким или быстрым, но я полон решимости и готов двигаться вперед. Я достигну новых высот и всегда буду придерживаться своего курса."
 });
