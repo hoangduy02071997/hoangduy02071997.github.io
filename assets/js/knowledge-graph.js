@@ -109,6 +109,9 @@
   let nodes = [];
   let edges = [];
   let hoveredNode = null;
+  let tooltipHitboxes = [];
+  let tooltipBounds = null;
+  let hoveredProject = null;
   let activeNode = null; // Used for click-to-pin functionality
 
   function initNodes() {
@@ -227,6 +230,8 @@
     ctx.fill();
     ctx.shadowBlur = 0;
     
+    tooltipBounds = { x: tx, y: ty, w: tw, h: th };
+    
     // Border matches category color
     const theme = getTheme();
     ctx.strokeStyle = palette[node.cat]?.[theme] || (isDark ? '#374151' : '#e5e7eb');
@@ -243,20 +248,44 @@
     // List of exact project names
     ctx.fillStyle = isDark ? '#f3f4f6' : '#111827';
     ctx.font = '500 12px Inter, sans-serif';
+    
     lines.forEach((line, i) => {
+      let itemY = ty + 34 + i * lh;
+      let isProjectHovered = (hoveredProject === line);
+      
       // Draw bullet
       ctx.beginPath();
-      ctx.arc(tx + 18, ty + 34 + i * lh + 6, 3, 0, Math.PI * 2);
-      ctx.fillStyle = palette[node.cat]?.[theme] || '#888';
+      ctx.arc(tx + 18, itemY + 6, 3, 0, Math.PI * 2);
+      ctx.fillStyle = isProjectHovered ? '#fff' : (palette[node.cat]?.[theme] || '#888');
       ctx.fill();
 
       // Draw text
-      ctx.fillStyle = isDark ? '#f3f4f6' : '#111827';
-      ctx.fillText(line, tx + 28, ty + 34 + i * lh);
+      ctx.fillStyle = isProjectHovered ? (palette[node.cat]?.[theme] || '#fff') : (isDark ? '#f3f4f6' : '#111827');
+      ctx.fillText(line, tx + 28, itemY);
+      
+      if (isProjectHovered) {
+        ctx.beginPath();
+        ctx.moveTo(tx + 28, itemY + 12);
+        ctx.lineTo(tx + 28 + ctx.measureText(line).width, itemY + 12);
+        ctx.strokeStyle = ctx.fillStyle;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // Add to hitboxes
+      tooltipHitboxes.push({
+        project: line,
+        x: tx + 16,
+        y: itemY,
+        w: tw - 32,
+        h: lh
+      });
     });
+
   }
 
   function draw() {
+    tooltipHitboxes = [];
     const theme = getTheme();
     const isDark = theme === 'dark';
     ctx.clearRect(0, 0, W, H);
@@ -426,25 +455,61 @@
     });
   }
 
-  function onMouseMove(e) {
+  
+    function onMouseMove(e) {
     const rect = canvas.getBoundingClientRect();
     mouse.x = e.clientX - rect.left;
     mouse.y = e.clientY - rect.top;
     
     let oldHover = hoveredNode;
-    hoveredNode = null;
     
-    for (let n of nodes) {
-      let dx = mouse.x - n.x, dy = mouse.y - n.y;
-      if (Math.sqrt(dx * dx + dy * dy) < n.r + 6) {
-        hoveredNode = n;
-        break;
+    let insideTooltip = false;
+    if (tooltipBounds && mouse.x >= tooltipBounds.x && mouse.x <= tooltipBounds.x + tooltipBounds.w && mouse.y >= tooltipBounds.y && mouse.y <= tooltipBounds.y + tooltipBounds.h) {
+      insideTooltip = true;
+    }
+
+    if (insideTooltip) {
+      hoveredNode = oldHover; // Keep the same node hovered
+    } else {
+      hoveredNode = null;
+      for (let n of nodes) {
+        let dx = mouse.x - n.x, dy = mouse.y - n.y;
+        if (Math.sqrt(dx * dx + dy * dy) < n.r + 6) {
+          hoveredNode = n;
+          break;
+        }
       }
     }
-    canvas.style.cursor = hoveredNode ? 'pointer' : 'default';
+    
+    hoveredProject = null;
+    if (insideTooltip) {
+        for (let box of tooltipHitboxes) {
+          if (mouse.x >= box.x && mouse.x <= box.x + box.w && mouse.y >= box.y && mouse.y <= box.y + box.h) {
+            hoveredProject = box.project;
+            break;
+          }
+        }
+    }
+    
+    canvas.style.cursor = (hoveredNode || hoveredProject) ? 'pointer' : 'default';
   }
 
-  function onClick(e) {
+
+  
+    function onClick(e) {
+    // Check if clicked inside tooltip bounds
+    if (tooltipBounds && mouse.x >= tooltipBounds.x && mouse.x <= tooltipBounds.x + tooltipBounds.w && mouse.y >= tooltipBounds.y && mouse.y <= tooltipBounds.y + tooltipBounds.h) {
+      for (let box of tooltipHitboxes) {
+        if (mouse.x >= box.x && mouse.x <= box.x + box.w && mouse.y >= box.y && mouse.y <= box.y + box.h) {
+          if (typeof window.openProjectModal === 'function') {
+            window.openProjectModal(box.project);
+          }
+          break;
+        }
+      }
+      return; // Do nothing else
+    }
+
     if (hoveredNode) {
       // Toggle active pin state
       if (activeNode && activeNode.id === hoveredNode.id) {
@@ -463,6 +528,7 @@
       activeNode = null;
     }
   }
+
 
   function onMouseLeave() {
     mouse.x = -9999;
