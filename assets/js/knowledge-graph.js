@@ -1,7 +1,7 @@
 /* ==========================================================================
    Knowledge Graph — Interactive Canvas
    ========================================================================== */
-(function () {
+window.initKnowledgeGraph = function() {
   'use strict';
 
   const canvas = document.getElementById('knowledgeGraph');
@@ -551,4 +551,4 @@
   } else {
     requestAnimationFrame(init);
   }
-})();
+};

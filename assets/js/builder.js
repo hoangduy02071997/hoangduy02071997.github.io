@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+window.initBuilder = function() {
   const draggables = document.querySelectorAll('.draggable-item');
   const mainCanvas = document.getElementById('builderCanvas');
   const emptyState = mainCanvas ? mainCanvas.querySelector('.empty-state') : null;
@@ -234,4 +234,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load example on start
   initExample();
-});
+};
