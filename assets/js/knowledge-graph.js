@@ -435,6 +435,7 @@ window.initKnowledgeGraph = function() {
   }
 
   function loop() {
+    if (!document.body.contains(canvas)) { if(animId) cancelAnimationFrame(animId); return; }
     simulate();
     draw();
     animId = requestAnimationFrame(loop);

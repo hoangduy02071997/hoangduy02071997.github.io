@@ -1,4 +1,4 @@
-  <!-- Tool Logic Scripts -->
+  // Tool Logic Scripts
     // Tab switching
     function openTool(toolId, btnElement) {
       document.querySelectorAll('.tool-panel').forEach(p => p.classList.remove('active'));
