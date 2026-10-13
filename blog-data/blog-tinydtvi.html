@@ -111,6 +111,93 @@
   </div></nav>
 
   <main>
+    <style>
+      .math-box {
+        background: rgba(141, 115, 255, 0.06);
+        border-left: 3px solid var(--purple);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 20px 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.95rem;
+        color: var(--text);
+        overflow-x: auto;
+      }
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin: 28px 0;
+      }
+      .metric-card {
+        background: var(--glass-bg);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px;
+        text-align: center;
+        transition: transform 0.2s, border-color 0.2s;
+      }
+      .metric-card:hover {
+        transform: translateY(-3px);
+        border-color: var(--purple);
+      }
+      .metric-val {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--purple);
+        margin-bottom: 4px;
+      }
+      .metric-label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+      .paper-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.95rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .paper-table th, .paper-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+      }
+      .paper-table th {
+        background: rgba(141, 115, 255, 0.12);
+        color: var(--text);
+        font-weight: 700;
+      }
+      .paper-table tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .callout {
+        border-radius: 12px;
+        padding: 20px;
+        margin: 25px 0;
+        border: 1px solid;
+      }
+      .callout-info {
+        background: rgba(102, 222, 196, 0.07);
+        border-color: rgba(102, 222, 196, 0.25);
+      }
+      .callout-warning {
+        background: rgba(255, 183, 77, 0.07);
+        border-color: rgba(255, 183, 77, 0.25);
+      }
+      .callout-title {
+        font-weight: 800;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+    </style>
     <article class="container" style="padding: 120px 20px 80px; max-width: 920px; margin: 0 auto; text-align: left;">
       <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         <span style="background: linear-gradient(135deg, var(--purple), #705ad4); color: #fff; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
@@ -206,11 +293,11 @@
           <h4 style="margin: 0 0 15px; color: var(--purple); font-size: 1.15rem;"><i class="fa-solid fa-microchip"></i> Thông Số Kỹ Thuật Chi Tiết (Hyperparameters)</h4>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-size: 0.95rem;">
             <div><strong>Số lớp Transformer (Layers):</strong> 24</div>
-            <div><strong>Hidden Dimension ($d$):</strong> 1088</div>
-            <div><strong>Attention Heads ($n_{heads}$):</strong> 16</div>
-            <div><strong>Head Dimension:</strong> 68 ($1088 / 16$)</div>
-            <div><strong>Intermediate FFN Dim:</strong> 4352 ($4 \times 1088$)</div>
-            <div><strong>Context Length:</strong> 1024 tokens</div>
+            <div><strong>Hidden Dimension (d):</strong> 1,088</div>
+            <div><strong>Attention Heads (n_heads):</strong> 16</div>
+            <div><strong>Head Dimension:</strong> 68 (1,088 / 16)</div>
+            <div><strong>Intermediate FFN Dim:</strong> 4,352 (4d = 4 × 1,088)</div>
+            <div><strong>Context Length:</strong> 1,024 tokens</div>
             <div><strong>Vocabulary Size:</strong> 50,304 tokens</div>
             <div><strong>Tổng tham số:</strong> ~509 Triệu (455M non-embedding)</div>
           </div>
@@ -223,14 +310,14 @@
         <div class="math-box">
           āᵢ = (aᵢ / RMS(a)) * gᵢ &nbsp;&nbsp;&nbsp;&nbsp; với &nbsp;&nbsp;&nbsp;&nbsp; RMS(a) = √((1/d) * ∑ⱼ aⱼ² + ε)
         </div>
-        <p>Với hằng số $\epsilon = 10^{-6}$, việc lược bỏ bước căn chỉnh trung bình giúp giảm tải đáng kể overhead tính toán trên GPU mà vẫn bảo toàn tính ổn định gradient.</p>
+        <p>Với hằng số ε = 10⁻⁶, việc lược bỏ bước căn chỉnh trung bình giúp giảm tải đáng kể overhead tính toán trên GPU mà vẫn bảo toàn tính ổn định gradient.</p>
 
         <p><strong>2. Hàm kích hoạt SwiGLU FFN:</strong><br>
         Thay thế hoàn toàn cấu trúc FFN dựa trên ReLU truyền thống bằng Swish-Gated Linear Unit (SwiGLU):</p>
         <div class="math-box">
           SwiGLU(x) = (Swish(x * W₁) ⊗ (x * W₃)) * W₂
         </div>
-        <p>Chúng tôi mở rộng không gian ẩn trung gian lên hệ số $4d$ ($4 \times 1088 = 4352$). Việc nhân có cổng (gated multiplicative interactions) tạo điều kiện cho mạng nơ-ron học các hàm phi tuyến phức tạp và cải thiện năng lực biểu diễn ngữ nghĩa vượt bậc.</p>
+        <p>Chúng tôi mở rộng không gian ẩn trung gian lên hệ số 4d (4 × 1,088 = 4,352). Việc nhân có cổng (gated multiplicative interactions) tạo điều kiện cho mạng nơ-ron học các hàm phi tuyến phức tạp và cải thiện năng lực biểu diễn ngữ nghĩa vượt bậc.</p>
 
         <p><strong>3. Mã hóa vị trí tương đối RoPE (Rotary Position Embeddings):</strong><br>
         Loại bỏ hoàn toàn Absolute Positional Embeddings (APE) tại tầng đầu vào. Thay vào đó, RoPE áp dụng ma trận xoay trực tiếp lên query và key tại mỗi attention head:</p>
@@ -348,7 +435,7 @@
           <li><strong>Optimizer 8-bit AdamW (bitsandbytes):</strong> Lượng tử hóa trạng thái của optimizer (momentum và variance) từ 32-bit xuống 8-bit, giải phóng hơn 3GB VRAM.</li>
           <li><strong>Gradient Checkpointing:</strong> Đổi thêm thời gian tính toán backward pass để giải phóng bộ nhớ lưu trữ activations của 24 tầng transformer.</li>
           <li><strong>Cấu hình Batch Size:</strong> Micro-batch size = 1, kết hợp Gradient Accumulation 80 bước. Tạo ra Effective Batch Size là 80 chuỗi (tương đương <strong>81,920 tokens/bước tối ưu</strong>).</li>
-          <li><strong>Learning Rate Schedule:</strong> Cosine decay với 2000 bước warmup. LR cực đại đạt $6 \times 10^{-4}$ và giảm dần về $6 \times 10^{-5}$, trọng số suy giảm (weight decay) là 0.1.</li>
+          <li><strong>Learning Rate Schedule:</strong> Cosine decay với 2,000 bước warmup. LR cực đại đạt 6 × 10⁻⁴ và giảm dần về 6 × 10⁻⁵, trọng số suy giảm (weight decay) là 0.1.</li>
         </ul>
 
         <div style="background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin: 25px 0;">
