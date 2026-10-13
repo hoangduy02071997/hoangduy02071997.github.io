@@ -15,7 +15,14 @@ const allNavLinks=[...navLinks,...drawerLinks];
 
 function setLanguage(lang){
   const dict=translations[lang]||{};
-  const walker=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+    acceptNode: function(node) {
+      if (node.parentElement && (node.parentElement.closest('.lang-content') || node.parentElement.closest('.katex') || node.parentElement.closest('code') || node.parentElement.closest('pre'))) {
+        return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
   const nodes=[]; let n;
   while(n=walker.nextNode()) nodes.push(n);
   nodes.forEach(node=>{
@@ -45,10 +52,40 @@ function setLanguage(lang){
       else li.classList.remove('active');
     });
   });
+  const availableLangs = new Set();
   document.querySelectorAll('.lang-content').forEach(el => {
-    if(el.getAttribute('data-lang') === lang) el.style.display = 'block';
+    availableLangs.add(el.getAttribute('data-lang'));
+  });
+  let activeLang = lang;
+  if (!availableLangs.has(lang)) {
+    activeLang = (lang === 'vi') ? 'vi' : 'en';
+  }
+  document.querySelectorAll('.lang-content').forEach(el => {
+    if (el.getAttribute('data-lang') === activeLang) el.style.display = 'block';
     else el.style.display = 'none';
   });
+  document.querySelectorAll('.blog-lang-btn').forEach(btn => {
+    if (btn.getAttribute('data-lang') === activeLang) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+  if (typeof window.triggerKaTeX === 'function') {
+    window.triggerKaTeX();
+  } else if (window.renderMathInElement) {
+    try {
+      window.renderMathInElement(document.body, {
+        delimiters: [
+          { left: '$$', right: '$$', display: true },
+          { left: '$', right: '$', display: false },
+          { left: '\\(', right: '\\)', display: false },
+          { left: '\\[', right: '\\]', display: true }
+        ],
+        throwOnError: false
+      });
+    } catch(e) {}
+  }
   localStorage.setItem('duyPortfolioLang',lang);
 }
 
@@ -1656,22 +1693,7 @@ window.closeDrawer = function() {
 window.initPortfolioEvents = function() {
 
     const savedLang = localStorage.getItem('duyPortfolioLang') || defaultLang;
-    if (savedLang !== 'en') {
-      setLanguage(savedLang);
-    } else {
-      document.querySelectorAll('.custom-lang-select').forEach(s => {
-        const isDrawer = s.closest('.drawer-lang') !== null;
-        const trigger = s.querySelector('.cls-trigger');
-        if (trigger) {
-          trigger.querySelector('.cls-flag').textContent = langFlags['en'] || langFlags['en'];
-          trigger.querySelector('.cls-text').textContent = isDrawer ? langNamesDrawer['en'] : langNamesNav['en'];
-        }
-        s.querySelectorAll('.cls-options li').forEach(li => {
-          if(li.getAttribute('data-value') === 'en') li.classList.add('active');
-          else li.classList.remove('active');
-        });
-      });
-    }
+    setLanguage(savedLang || 'en');
 
     const savedTheme = localStorage.getItem('duyPortfolioTheme');
     if (savedTheme) {

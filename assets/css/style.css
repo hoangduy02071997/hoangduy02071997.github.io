@@ -1550,3 +1550,125 @@ footer {
   align-items: center;
   gap: 8px;
 }
+
+/* ==========================================================================
+   KaTeX & Math Typography
+   ========================================================================== */
+.katex-display {
+  background: rgba(141, 115, 255, 0.05);
+  border: 1px solid rgba(141, 115, 255, 0.2);
+  border-left: 4px solid var(--purple);
+  border-radius: 12px;
+  padding: 16px 22px !important;
+  margin: 22px 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.2s;
+}
+.katex-display:hover {
+  border-color: rgba(141, 115, 255, 0.45);
+}
+.katex {
+  font-size: 1.08em;
+  color: var(--text);
+}
+.katex-display > .katex {
+  font-size: 1.15em;
+}
+
+/* Bilingual switcher */
+.blog-lang-switcher {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 30px;
+  padding: 12px 18px;
+  background: rgba(141, 115, 255, 0.06);
+  border: 1px solid rgba(141, 115, 255, 0.22);
+  border-radius: 14px;
+}
+.blog-lang-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: inherit;
+}
+.blog-lang-btn:hover {
+  border-color: var(--purple);
+  color: var(--text);
+  background: rgba(141, 115, 255, 0.1);
+}
+.blog-lang-btn.active {
+  background: var(--purple);
+  border-color: var(--purple);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(141, 115, 255, 0.4);
+}
+
+/* Decoder Block Diagram */
+.arch-diagram {
+  max-width: 580px;
+  margin: 35px auto;
+  padding: 28px 24px;
+  background: rgba(20, 24, 38, 0.7);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  text-align: center;
+}
+.arch-node {
+  max-width: 360px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  position: relative;
+}
+.arch-norm {
+  background: rgba(102, 222, 196, 0.12);
+  border: 1px solid rgba(102, 222, 196, 0.4);
+  color: #a2ecdc;
+}
+.arch-block {
+  background: rgba(141, 115, 255, 0.15);
+  border: 1px solid rgba(141, 115, 255, 0.4);
+  color: #e2dcff;
+}
+.arch-add {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--purple);
+  background: rgba(141, 115, 255, 0.2);
+  color: #fff;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px auto;
+  font-size: 1.1rem;
+}
+.arch-arrow {
+  color: var(--text-muted);
+  font-size: 1rem;
+  margin: 6px 0;
+}
+.arch-caption {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-top: 20px;
+  line-height: 1.6;
+  font-style: italic;
+}
