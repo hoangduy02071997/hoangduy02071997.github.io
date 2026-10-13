@@ -822,6 +822,95 @@ h3 { letter-spacing: -.025em }
   background: radial-gradient(circle at 85% 0, rgba(29,185,154,.05), transparent 20rem), var(--btn-bg);
 }
 .ai-card h3 { font-size: 23px; margin: 0 0 8px }
+.ai-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 14px;
+}
+.ai-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-decoration: none;
+  background: var(--btn-bg);
+  border: 1px solid var(--line);
+  color: var(--text);
+  transition: all .2s ease;
+}
+.ai-link:hover {
+  transform: translateY(-1px);
+}
+.ai-link.github {
+  border-color: rgba(141,115,255,.3);
+  background: rgba(141,115,255,.08);
+  color: #d1c8ff;
+}
+.ai-link.github:hover {
+  border-color: var(--purple);
+  background: rgba(141,115,255,.2);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(141,115,255,.2);
+}
+[data-theme="light"] .ai-link.github {
+  border-color: rgba(109,79,232,.25);
+  background: rgba(109,79,232,.06);
+  color: #5b3dcc;
+}
+[data-theme="light"] .ai-link.github:hover {
+  background: rgba(109,79,232,.14);
+  color: #4324b8;
+  box-shadow: 0 4px 12px rgba(109,79,232,.15);
+}
+
+.ai-link.hf-model {
+  border-color: rgba(255,210,30,.3);
+  background: rgba(255,210,30,.08);
+  color: #ffe566;
+}
+.ai-link.hf-model:hover {
+  border-color: #ffd21e;
+  background: rgba(255,210,30,.2);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255,210,30,.2);
+}
+[data-theme="light"] .ai-link.hf-model {
+  border-color: rgba(217,143,0,.3);
+  background: rgba(255,210,30,.12);
+  color: #945d00;
+}
+[data-theme="light"] .ai-link.hf-model:hover {
+  background: rgba(255,210,30,.22);
+  color: #664000;
+  box-shadow: 0 4px 12px rgba(217,143,0,.15);
+}
+
+.ai-link.hf-dataset {
+  border-color: rgba(102,222,196,.3);
+  background: rgba(102,222,196,.08);
+  color: #a2ecdc;
+}
+.ai-link.hf-dataset:hover {
+  border-color: var(--mint);
+  background: rgba(102,222,196,.2);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(102,222,196,.2);
+}
+[data-theme="light"] .ai-link.hf-dataset {
+  border-color: rgba(29,185,154,.25);
+  background: rgba(29,185,154,.08);
+  color: #0d8068;
+}
+[data-theme="light"] .ai-link.hf-dataset:hover {
+  background: rgba(29,185,154,.18);
+  color: #075a48;
+  box-shadow: 0 4px 12px rgba(29,185,154,.15);
+}
 .flow { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-top: 17px }
 .node { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--btn-bg) }
 .node strong { display: block; font-size: 11px }

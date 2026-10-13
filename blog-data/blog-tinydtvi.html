@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TinyDTVi: Pretraining Mô Hình Ngôn Ngữ Tiếng Việt Từ Số 0 Trên Single GPU RTX 3080 — Duy Hoàng</title>
+  <meta name="description" content="Nghiên cứu kiến trúc ~500M tham số, quy trình lọc dữ liệu khắt khe 200GB thô xuống 134GB, huấn luyện 23.2 tỷ tokens với chi phí điện năng dưới $200 USD và phân tích tường tận hiện tượng Validation Spikes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/assets/css/style.css?v=2">
+  <link rel="icon" type="image/jpeg" href="/assets/img/favicon.jpg">
+  <style>
+    .math-box {
+      background: rgba(141, 115, 255, 0.06);
+      border-left: 3px solid var(--purple);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin: 20px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      color: var(--text);
+      overflow-x: auto;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 15px;
+      margin: 28px 0;
+    }
+    .metric-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      text-align: center;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .metric-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--purple);
+    }
+    .metric-val {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--purple);
+      margin-bottom: 4px;
+    }
+    .metric-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+    .paper-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 25px 0;
+      font-size: 0.95rem;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .paper-table th, .paper-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid var(--line);
+    }
+    .paper-table th {
+      background: rgba(141, 115, 255, 0.12);
+      color: var(--text);
+      font-weight: 700;
+    }
+    .paper-table tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .callout {
+      border-radius: 12px;
+      padding: 20px;
+      margin: 25px 0;
+      border: 1px solid;
+    }
+    .callout-info {
+      background: rgba(102, 222, 196, 0.07);
+      border-color: rgba(102, 222, 196, 0.25);
+    }
+    .callout-warning {
+      background: rgba(255, 183, 77, 0.07);
+      border-color: rgba(255, 183, 77, 0.25);
+    }
+    .callout-title {
+      font-weight: 800;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav"><div class="container nav-inner">
+    <a class="brand" href="/"><span class="nav-avatar"><img src="/assets/img/avatar.jpg" alt="Duy Hoàng"></span><span>Duy Hoàng<small>Backend / Full-stack Engineer</small></span></a>
+    <div class="menu">
+      <a href="/blogs" class="blog-nav-filter active">Blogs</a>
+      <a href="/tools">Tools</a>
+      <a href="/journey">Journey</a>
+      <a href="/work-with-me">Work with me</a>
+    </div>
+  </div></nav>
+
+  <main>
+    <article class="container" style="padding: 120px 20px 80px; max-width: 920px; margin: 0 auto; text-align: left;">
+      <div style="margin-bottom: 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <span style="background: linear-gradient(135deg, var(--purple), #705ad4); color: #fff; padding: 6px 14px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+          <i class="fa-solid fa-flask" style="margin-right: 5px;"></i> AI / LLM Research
+        </span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;"><i class="fa-regular fa-calendar" style="margin-right: 5px;"></i> October 2026</span>
+        <span style="color: var(--text-muted); font-size: 0.9rem;"><i class="fa-regular fa-user" style="margin-right: 5px;"></i> Duy Hoàng &amp; Duy Tâm Hoàng Nguyễn</span>
+      </div>
+
+      <h1 class="hero-title" style="font-size: 2.8rem; margin-bottom: 20px; line-height: 1.25; font-weight: 900;">
+        TinyDTVi: Pretraining Mô Hình Ngôn Ngữ Tiếng Việt Từ Số 0 Dưới Giới Hạn Phần Cứng Tiêu Dùng
+      </h1>
+
+      <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 30px;">
+        Báo cáo kỹ thuật chi tiết về quá trình nghiên cứu, thiết kế kiến trúc Transformer ~509M tham số, xây dựng pipeline lọc sạch 200GB dữ liệu thô, nén BPE tokenizer độc quyền và huấn luyện liên tục 23.2 tỷ tokens trên duy nhất một card đồ họa <strong>NVIDIA RTX 3080 (12GB VRAM)</strong> với chi phí điện chỉ ~$150 - $200 USD.
+      </p>
+
+      <!-- Project Artifacts Links Bar -->
+      <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 40px; padding: 18px 22px; background: rgba(141, 115, 255, 0.08); border: 1px solid rgba(141, 115, 255, 0.25); border-radius: 16px;">
+        <a href="https://github.com/hoangduy02071997/tinyDTVi" target="_blank" rel="noopener noreferrer" class="btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); color: #fff; gap: 8px; font-weight: 700;">
+          <i class="fa-brands fa-github" style="font-size: 15px;"></i> GitHub Code Repository ↗
+        </a>
+        <a href="https://huggingface.co/hoangduy02071997/tinyDTVi" target="_blank" rel="noopener noreferrer" class="btn" style="background: rgba(255, 210, 30, 0.12); border-color: rgba(255, 210, 30, 0.35); color: #ffe566; gap: 8px; font-weight: 700;">
+          <span>🤗</span> Hugging Face Model (509M) ↗
+        </a>
+        <a href="https://huggingface.co/datasets/hoangduy02071997/tinyDTVi-dataset" target="_blank" rel="noopener noreferrer" class="btn" style="background: rgba(102, 222, 196, 0.12); border-color: rgba(102, 222, 196, 0.35); color: #a2ecdc; gap: 8px; font-weight: 700;">
+          <span>🤗</span> Hugging Face Dataset (134GB Clean) ↗
+        </a>
+      </div>
+
+      <img src="/assets/img/blog/tinydtvi.jpg" style="width: 100%; height: auto; max-height: 480px; object-fit: cover; border-radius: 20px; margin-bottom: 45px; border: 1px solid var(--line);" alt="TinyDTVi Architecture and Neural Network">
+
+      <!-- High-level Metric Stat Cards -->
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-val">~509M</div>
+          <div class="metric-label">Tổng tham số (Parameters)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">23.2B</div>
+          <div class="metric-label">Tokens đã huấn luyện</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">12 GB</div>
+          <div class="metric-label">VRAM RTX 3080 Duy Nhất</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">1.175</div>
+          <div class="metric-label">Fertility Rate (Tokens / Âm tiết)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-val">~$180</div>
+          <div class="metric-label">Tổng chi phí điện năng</div>
+        </div>
+      </div>
+
+      <div class="body-text" style="font-size: 1.12rem; line-height: 1.9; color: var(--text-muted);">
+
+        <!-- Section: Abstract -->
+        <div class="callout callout-info">
+          <div class="callout-title" style="color: var(--mint); font-size: 1.15rem;">
+            <i class="fa-solid fa-bookmark"></i> TÓM TẮT BÁO CÁO (ABSTRACT)
+          </div>
+          <p style="margin: 0; color: var(--text);">
+            Các mô hình ngôn ngữ lớn (LLM) đòi hỏi hạ tầng tính toán phân tán khổng lồ và phần lớn bị thống trị bởi tập ngữ liệu tiếng Anh. Trong công trình này, chúng tôi giới thiệu <strong>TinyDTVi</strong> — mô hình ngôn ngữ nhân quả (causal LM) tiếng Việt có dung lượng xấp xỉ 500 triệu tham số, được huấn luyện hoàn toàn từ con số không (pre-trained from scratch) trên một card đồ họa phân khúc phổ thông duy nhất: <strong>NVIDIA RTX 3080 (12GB VRAM)</strong>. Nhờ quy trình lọc dữ liệu khắt khe và các kỹ thuật tối ưu hóa bộ nhớ chuyên sâu, mô hình đã xử lý an toàn 23.2 tỷ tokens (283,200 iterations). Chúng tôi minh bạch toàn bộ các quyết định kiến trúc, hiệu quả nén tokenizer, cơ chế tối ưu hóa bộ nhớ tránh lỗi OOM (Out Of Memory), cũng như phân tích nguyên nhân gốc rễ (root-cause analysis) của các hiện tượng Validation Spikes và bug deserialization RNG state nhằm cung cấp một tài liệu tham khảo thực chiến, có thể tái lập cho cộng đồng nghiên cứu NLP Việt Nam.
+          </p>
+        </div>
+
+        <!-- Section 1: Introduction -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          1. Đặt Vấn Đề &amp; Động Lực Nghiên Cứu
+        </h2>
+        <p>
+          Hầu hết các đột phá về mô hình ngôn ngữ hiện nay thuộc về những tập đoàn công nghệ với các cụm máy chủ hàng ngàn GPU A100/H100 đắt đỏ. Đối với các ngôn ngữ có tài nguyên tầm trung (mid-resource languages) như tiếng Việt, cách tiếp cận phổ biến là fine-tuning hoặc continual pretraining trên các mô hình gốc phương Tây (LLaMA, Mistral, Qwen). Tuy nhiên, cách làm này bộc lộ những nhược điểm cố hữu:
+        </p>
+        <ul style="padding-left: 20px; margin-bottom: 20px;">
+          <li><strong>Phân mảnh Tokenizer (Vocabulary Fragmentation):</strong> Tokenizer đa ngôn ngữ thường chia cắt một âm tiết hoặc ký tự có dấu tiếng Việt thành nhiều sub-tokens rời rạc, làm thổi phồng chiều dài chuỗi thực tế, gây lãng phí cửa sổ ngữ cảnh (context window) và tăng độ trễ suy luận.</li>
+          <li><strong>Rào cản hạ tầng:</strong> Chi phí thuê server đám mây hoặc cluster chuyên dụng khiến các nhà nghiên cứu độc lập và sinh viên khó lòng tiếp cận quy trình pretraining từ đầu.</li>
+        </ul>
+        <p>
+          <strong>Mục tiêu cốt lõi của TinyDTVi:</strong> Khám phá giới hạn kỹ thuật để trả lời câu hỏi: <em>Liệu một kỹ sư phần mềm độc lập chỉ với một chiếc PC gaming (RTX 3080 12GB) có thể pretrain thành công một mô hình ngôn ngữ nền tảng tiếng Việt đạt trạng thái hội tụ và ngữ pháp mạch lạc hay không?</em>
+        </p>
+
+        <!-- Section 2: Architecture -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          2. Thiết Kế Kiến Trúc Mô Hình TinyDTVi
+        </h2>
+        <p>
+          TinyDTVi là mô hình Decoder-only Causal Transformer, lấy cảm hứng cấu trúc tối giản từ repository <code>nanoGPT</code> của Andrej Karpathy, nhưng được hiện đại hóa sâu sắc với các kỹ thuật kiến trúc tiên tiến nhất để tối ưu hóa trên ngân sách bộ nhớ 12GB VRAM:
+        </p>
+
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin: 25px 0;">
+          <h4 style="margin: 0 0 15px; color: var(--purple); font-size: 1.15rem;"><i class="fa-solid fa-microchip"></i> Thông Số Kỹ Thuật Chi Tiết (Hyperparameters)</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; font-size: 0.95rem;">
+            <div><strong>Số lớp Transformer (Layers):</strong> 24</div>
+            <div><strong>Hidden Dimension ($d$):</strong> 1088</div>
+            <div><strong>Attention Heads ($n_{heads}$):</strong> 16</div>
+            <div><strong>Head Dimension:</strong> 68 ($1088 / 16$)</div>
+            <div><strong>Intermediate FFN Dim:</strong> 4352 ($4 \times 1088$)</div>
+            <div><strong>Context Length:</strong> 1024 tokens</div>
+            <div><strong>Vocabulary Size:</strong> 50,304 tokens</div>
+            <div><strong>Tổng tham số:</strong> ~509 Triệu (455M non-embedding)</div>
+          </div>
+        </div>
+
+        <h3 style="color: var(--purple); font-size: 1.35rem; margin-top: 30px;">Các Cải Tiến Kiến Trúc Cốt Lõi:</h3>
+        
+        <p><strong>1. RMSNorm (Root Mean Square Normalization):</strong><br>
+        Thay vì sử dụng LayerNorm thông thường phải tính toán cả giá trị trung bình (mean) và phương sai (variance), chúng tôi áp dụng Pre-LN với RMSNorm:</p>
+        <div class="math-box">
+          āᵢ = (aᵢ / RMS(a)) * gᵢ &nbsp;&nbsp;&nbsp;&nbsp; với &nbsp;&nbsp;&nbsp;&nbsp; RMS(a) = √((1/d) * ∑ⱼ aⱼ² + ε)
+        </div>
+        <p>Với hằng số $\epsilon = 10^{-6}$, việc lược bỏ bước căn chỉnh trung bình giúp giảm tải đáng kể overhead tính toán trên GPU mà vẫn bảo toàn tính ổn định gradient.</p>
+
+        <p><strong>2. Hàm kích hoạt SwiGLU FFN:</strong><br>
+        Thay thế hoàn toàn cấu trúc FFN dựa trên ReLU truyền thống bằng Swish-Gated Linear Unit (SwiGLU):</p>
+        <div class="math-box">
+          SwiGLU(x) = (Swish(x * W₁) ⊗ (x * W₃)) * W₂
+        </div>
+        <p>Chúng tôi mở rộng không gian ẩn trung gian lên hệ số $4d$ ($4 \times 1088 = 4352$). Việc nhân có cổng (gated multiplicative interactions) tạo điều kiện cho mạng nơ-ron học các hàm phi tuyến phức tạp và cải thiện năng lực biểu diễn ngữ nghĩa vượt bậc.</p>
+
+        <p><strong>3. Mã hóa vị trí tương đối RoPE (Rotary Position Embeddings):</strong><br>
+        Loại bỏ hoàn toàn Absolute Positional Embeddings (APE) tại tầng đầu vào. Thay vào đó, RoPE áp dụng ma trận xoay trực tiếp lên query và key tại mỗi attention head:</p>
+        <div class="math-box">
+          f(q, m) = R_{Θ, m} * q &nbsp;&nbsp;&nbsp;&nbsp; với góc quay mθ (base frequency = 10,000)
+        </div>
+        <p>Điều này cho phép cơ chế Attention cảm nhận được khoảng cách tương đối giữa các từ mà không phụ thuộc vào vị trí tuyệt đối, bảo toàn độ lớn vector đặc trưng và tăng khả năng ngoại suy chiều dài ngữ cảnh.</p>
+
+        <p><strong>4. Tied Embeddings &amp; Bias-Free:</strong><br>
+        Ma trận embedding đầu vào được liên kết (tied) với ma trận chiếu từ vựng đầu ra (vocabulary projection), tiết kiệm hơn 50 triệu tham số. Đồng thời, toàn bộ các tầng tuyến tính đều tắt bias (<code>bias=False</code>) theo chuẩn các mô hình hiện đại như PaLM/LLaMA.</p>
+
+        <!-- Section 3: Data Pipeline -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          3. Pipeline Dữ Liệu &amp; Bộ Lọc Whitelist Khắt Khe
+        </h2>
+        <p>
+          Để một mô hình 500M tham số học hiệu quả, chất lượng dữ liệu quan trọng hơn nhiều so với số lượng thô. Chúng tôi tổng hợp hơn 200GB văn bản uncompressed từ 3 nguồn:
+        </p>
+        <ul style="padding-left: 20px;">
+          <li><strong>CulturaX (Vietnamese subset):</strong> Chiếm ~75% số lượng tài liệu, đại diện cho ngôn ngữ web đa dạng.</li>
+          <li><strong>Vietnamese News Corpus (vnews - BinhVQ):</strong> Chiếm ~24%, nguồn báo chí chính thống với ngữ pháp chuẩn mực.</li>
+          <li><strong>Vietnamese Wikipedia (vi_wiki):</strong> Chiếm ~1%, kho tri thức bách khoa chất lượng cao.</li>
+        </ul>
+
+        <p>Chúng tôi áp dụng một chiến lược <strong>Whitelist Filtering cực kỳ khắt khe</strong> thay vì chỉ dùng các heuristic lọc trùng thông thường:</p>
+        <ol style="padding-left: 20px; line-height: 2;">
+          <li><strong>Chuẩn hóa Unicode NFC &amp; NFKC:</strong> Thống nhất toàn bộ các ký tự dấu thanh tiếng Việt từ dạng tổ hợp (decomposed) về dạng dựng sẵn (composed).</li>
+          <li><strong>Loại bỏ rác bách khoa:</strong> Dùng biểu thức chính quy (Regex) bóc tách toàn bộ chú thích wiki như <code>[1]</code>, <code>[source]</code>, <code>[cần dẫn nguồn]</code>.</li>
+          <li><strong>Lọc theo Whitelist nghiêm ngặt:</strong> Chỉ cho phép giữ lại bảng chữ cái tiếng Việt đầy đủ dấu thanh, bảng chữ cái tiếng Anh, chữ số, dấu câu cơ bản <code>.,!?()"-</code> và toán tử toán học. Emojis, ký tự tượng hình lạ và cú pháp markdown phức tạp bị loại bỏ ở cấp độ ký tự.</li>
+          <li><strong>Deduplication với Bounded Cache (Tránh tràn RAM 32GB):</strong> Băm integer hash 500 ký tự đầu tiên của mỗi văn bản. Giới hạn cache 15 triệu prefix duy nhất. Lọc bỏ các tài liệu dưới 150 ký tự và cắt ngắn tài liệu vượt quá 10,000 ký tự.</li>
+          <li><strong>Chuẩn hóa khoảng trắng liên tục:</strong> Thu gọn các khoảng trắng và dòng trống liên tiếp thành chuỗi token đậm đặc.</li>
+        </ol>
+
+        <p>Sau khi tinh lọc, tập dữ liệu đạt quy mô <strong>~134GB văn bản thuần khiết</strong>, tương đương <strong>~28 tỷ tokens</strong>. Một epoch tương ứng với khoảng 340,000 bước huấn luyện.</p>
+
+        <!-- Section 4: Tokenizer -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          4. Tokenizer Độc Quyền &amp; Hiệu Năng Nén Vượt Trội
+        </h2>
+        <p>
+          Chúng tôi huấn luyện một Byte-Level BPE Tokenizer từ đầu trên tập ngữ liệu đã tinh lọc với kích thước từ điển <strong>50,304 tokens</strong>.
+        </p>
+        <p>
+          Để đánh giá khách quan, chúng tôi tiến hành benchmark đo độ nén trên 10,000 văn bản web tiếng Việt độc lập lấy từ CulturaX. Chỉ số <strong>Fertility Rate</strong> (số lượng token cần thiết để biểu diễn 100 âm tiết tiếng Việt) càng thấp thì mô hình càng nén tốt, chứa được nhiều thông tin hơn trong cùng một độ dài ngữ cảnh:
+        </p>
+
+        <table class="paper-table">
+          <thead>
+            <tr>
+              <th>Mô hình / Tokenizer</th>
+              <th>Kích thước Vocab</th>
+              <th>Số Token / 100 Âm tiết (Fertility)</th>
+              <th>Số Ký tự / 1 Token</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SmolLM2-360M</td>
+              <td>49,152</td>
+              <td>346.2</td>
+              <td>1.33</td>
+            </tr>
+            <tr>
+              <td>LLaMA-2-7B</td>
+              <td>32,000</td>
+              <td>298.6</td>
+              <td>1.54</td>
+            </tr>
+            <tr>
+              <td>GPT-4 (tiktoken)</td>
+              <td>100,277</td>
+              <td>222.5</td>
+              <td>2.06</td>
+            </tr>
+            <tr>
+              <td>Qwen2.5-0.5B</td>
+              <td>151,665</td>
+              <td>137.6</td>
+              <td>3.34</td>
+            </tr>
+            <tr>
+              <td>LLaMA-3-8B</td>
+              <td>128,256</td>
+              <td>130.8</td>
+              <td>3.51</td>
+            </tr>
+            <tr>
+              <td>PhoBERT-base</td>
+              <td>64,000</td>
+              <td>121.6</td>
+              <td>3.78</td>
+            </tr>
+            <tr style="background: rgba(102, 222, 196, 0.12); font-weight: 800; color: var(--text);">
+              <td><strong>TinyDTVi (Nghiên cứu của chúng tôi)</strong></td>
+              <td><strong>50,304</strong></td>
+              <td><strong>117.5</strong></td>
+              <td><strong>3.91</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p>
+          <strong>Điểm nổi bật:</strong> Mặc dù chỉ có từ điển 50k tokens (gọn hơn 3 lần so với 151k của Qwen2.5 và 128k của LLaMA-3), TinyDTVi đạt tỷ lệ nén <strong>117.5 tokens / 100 âm tiết</strong>, vượt trội hơn cả mô hình đơn ngữ PhoBERT-base (~3.4% tốt hơn) và bỏ xa các mô hình đa ngôn ngữ hàng đầu thế giới (~10.2% so với LLaMA-3 và ~14.6% so với Qwen2.5).
+        </p>
+
+        <!-- Section 5: Training Setup -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          5. Kỹ Thuật Huấn Luyện Vượt Ngưỡng VRAM 12GB
+        </h2>
+        <p>
+          Huấn luyện một mô hình nửa tỷ tham số trên GPU 12GB thông thường là điều bất khả thi nếu không có các kỹ thuật thu hẹp bộ nhớ tầng sâu:
+        </p>
+        <ul style="padding-left: 20px; line-height: 2;">
+          <li><strong>Độ chính xác bfloat16 Mixed Precision:</strong> Tiết kiệm 50% bộ nhớ tensor so với FP32 mà không làm mất tính ổn định giá trị số.</li>
+          <li><strong>Optimizer 8-bit AdamW (bitsandbytes):</strong> Lượng tử hóa trạng thái của optimizer (momentum và variance) từ 32-bit xuống 8-bit, giải phóng hơn 3GB VRAM.</li>
+          <li><strong>Gradient Checkpointing:</strong> Đổi thêm thời gian tính toán backward pass để giải phóng bộ nhớ lưu trữ activations của 24 tầng transformer.</li>
+          <li><strong>Cấu hình Batch Size:</strong> Micro-batch size = 1, kết hợp Gradient Accumulation 80 bước. Tạo ra Effective Batch Size là 80 chuỗi (tương đương <strong>81,920 tokens/bước tối ưu</strong>).</li>
+          <li><strong>Learning Rate Schedule:</strong> Cosine decay với 2000 bước warmup. LR cực đại đạt $6 \times 10^{-4}$ và giảm dần về $6 \times 10^{-5}$, trọng số suy giảm (weight decay) là 0.1.</li>
+        </ul>
+
+        <div style="background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px; margin: 25px 0;">
+          <h4 style="margin: 0 0 15px; color: var(--purple); font-size: 1.15rem;"><i class="fa-solid fa-server"></i> Hạ Tầng Phần Cứng &amp; Thông Số Thực Tế</h4>
+          <table style="width: 100%; font-size: 0.95rem;">
+            <tr><td style="padding: 6px 0;"><strong>Card đồ họa:</strong></td><td>1x EVGA NVIDIA GeForce RTX 3080 (12GB VRAM)</td></tr>
+            <tr><td style="padding: 6px 0;"><strong>CPU &amp; RAM:</strong></td><td>Intel Core i9-13900K, 32GB DDR4 RAM</td></tr>
+            <tr><td style="padding: 6px 0;"><strong>Hệ điều hành:</strong></td><td>Ubuntu 24.04 LTS (Docker PyTorch 2.1.2 + CUDA 11.8)</td></tr>
+            <tr><td style="padding: 6px 0;"><strong>Peak VRAM tiêu thụ:</strong></td><td><strong>~10.8 GB</strong> (Chiếm 90% trần 12GB an toàn)</td></tr>
+            <tr><td style="padding: 6px 0;"><strong>Throughput trung bình:</strong></td><td>~3,400 tokens / giây</td></tr>
+            <tr><td style="padding: 6px 0;"><strong>Tổng thời gian chạy:</strong></td><td>~1,890 giờ hoạt động (Tháng 1/2026 - Tháng 10/2026)</td></tr>
+            <tr><td style="padding: 6px 0;"><strong>Tổng năng lượng tiêu thụ:</strong></td><td>~1,100 - 1,500 kWh</td></tr>
+            <tr><td style="padding: 6px 0;"><strong>Ước tính tiền điện (EVN Bậc 6):</strong></td><td><strong>~$150 - $200 USD</strong> (~3.8 - 5.0 triệu VNĐ)</td></tr>
+          </table>
+        </div>
+
+        <p>
+          <em>Ghi chú kỹ thuật:</em> Kích thước chiều ẩn 1088 chia cho 16 heads cho ra head dimension là 68. Do số 68 không chia hết cho 8, cơ chế SDPA của PyTorch buộc phải dùng math-kernel thay vì FlashAttention kernel tối ưu cao. Điều này khiến tốc độ đạt ~10-14 TFLOPs (MFU ~17-23%). Đây là kinh nghiệm quý giá: nếu chọn kích thước ẩn 1024 (head dim = 64), tốc độ sẽ còn cao hơn đáng kể.
+        </p>
+
+        <!-- Section 6: Training Dynamics & RNG Bug -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          6. Động Lực Huấn Luyện &amp; Phân Tích Bug Dataloader RNG
+        </h2>
+        <p>
+          Mô hình được huấn luyện liên tục vượt qua mốc tối ưu Chinchilla (10 tỷ tokens cho model 500M) và cán mốc <strong>283,200 bước (~23.2 tỷ tokens)</strong>. Đây là checkpoint chính thức được phát hành (Phase 1 release).
+        </p>
+
+        <div class="callout callout-warning">
+          <div class="callout-title" style="color: #ffb74d; font-size: 1.15rem;">
+            <i class="fa-solid fa-triangle-exclamation"></i> BÀI HỌC THỰC CHIẾN: BUG DESERIALIZATION TRẠNG THÁI RNG
+          </div>
+          <p style="margin: 0; color: var(--text);">
+            Khi thử nghiệm huấn luyện tiếp tục vượt mốc 283.2k (đến khoảng 330,000 steps), chúng tôi phát hiện loss validation đột ngột tăng vọt (terminal divergence) trong khi train loss giảm bất thường về mức ~1.5. Sau khi tiến hành phân tích nguyên nhân gốc rễ (root-cause analysis), chúng tôi phát hiện:<br><br>
+            Dataloader lấy mẫu offset ngẫu nhiên thông qua hàm <code>torch.randint</code> trên CPU. Trong logic tự động khôi phục (auto-resume), mặc dù trọng số mô hình và optimizer được nạp lại hoàn hảo, nhưng <strong>trạng thái sinh số ngẫu nhiên CPU RNG State lại không được serialize</strong>. Do script luôn khởi tạo với manual seed cố định (<code>1337</code>), sau mỗi lần resume ở các bước sau, dataloader đã vô tình lặp lại chính xác chuỗi micro-batches cũ từ đầu! Điều này khiến mô hình bị ép ghi nhớ (memorization/overfitting) trên chuỗi dữ liệu lặp lại, dẫn đến phân kỳ đánh giá validation.<br><br>
+            Nhờ phát hiện kịp thời, chúng tôi đã chọn checkpoint ở bước <strong>283,200</strong> — thời điểm trước khi xảy ra hiện tượng memorization này — làm checkpoint chính thức để bảo toàn năng lực tổng quát hóa của mô hình, đồng thời cập nhật bản vá khôi phục RNG state lên GitHub repo.
+          </p>
+        </div>
+
+        <!-- Section 7: Evaluation -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          7. Đánh Giá Định Lượng &amp; Năng Lực Sinh Văn Bản
+        </h2>
+        <p>
+          Trên tập đánh giá độc lập <strong>XQuAD tiếng Việt (XQuAD-vi)</strong> ở dạng văn bản thô (giữ nguyên các dấu xuống dòng và định dạng vốn đã bị lọc trong quá trình pretraining):
+        </p>
+        <ul style="padding-left: 20px;">
+          <li><strong>Validation Loss:</strong> 3.7445</li>
+          <li><strong>Perplexity (PPL):</strong> 42.29 (So với PPL ~10.45 khi đánh giá trên tập in-domain Wikipedia lọc chuẩn). Sự chênh lệch này phản ánh hiện tượng <em>Distribution Shift</em> đối với các token định dạng lạ như ký tự xuống dòng.</li>
+          <li><strong>Bits-Per-Character (BPC):</strong> 1.3889 trên văn bản XQuAD thô.</li>
+        </ul>
+
+        <h3 style="color: var(--purple); font-size: 1.35rem; margin-top: 30px;">Kiểm Thử Sinh Văn Bản Thực Tế (Zero-Shot, Không Có SFT):</h3>
+        <p>Dưới đây là văn bản sinh ngẫu nhiên từ TinyDTVi-500M với top-$k$ sampling ($T=0.8, k=50$) mà chưa qua bất kỳ quá trình căn chỉnh chỉ dẫn (Instruction Fine-Tuning) nào:</p>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin: 20px 0;">
+          <div style="color: var(--purple); font-weight: 800; margin-bottom: 6px;">Prompt 1:</div>
+          <div style="font-style: italic; color: #fff; margin-bottom: 12px;">"Trí tuệ nhân tạo (AI) là"</div>
+          <div style="color: var(--mint); font-weight: 800; margin-bottom: 6px;">TinyDTVi Output:</div>
+          <div style="line-height: 1.7; color: var(--text);">
+            "kỹ thuật sử dụng các thuật toán logic đặc biệt để giải mã dữ liệu và dịch chúng để nhận dạng chúng. Bằng cách thu thập dữ liệu đầu vào, Trí tuệ nhân tạo có thể học cách nhận dạng các vật thể đó và cải thiện các..."
+          </div>
+        </div>
+
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--line); border-radius: 12px; padding: 20px; margin: 20px 0;">
+          <div style="color: var(--purple); font-weight: 800; margin-bottom: 6px;">Prompt 2:</div>
+          <div style="font-style: italic; color: #fff; margin-bottom: 12px;">"Khi học lập trình, điều quan trọng nhất là"</div>
+          <div style="color: var(--mint); font-weight: 800; margin-bottom: 6px;">TinyDTVi Output:</div>
+          <div style="line-height: 1.7; color: var(--text);">
+            "phải biết cách sử dụng các công cụ lập trình, đặc biệt là các công cụ phần mềm. Nó giúp bạn có thể dễ dàng quản lý và tối ưu hóa thời gian của mình để làm việc hiệu quả hơn."
+          </div>
+        </div>
+
+        <p>
+          <strong>Nhận xét:</strong> Mặc dù chỉ là mô hình 500M tham số chưa qua hậu huấn luyện (post-training), TinyDTVi đã thể hiện khả năng liên kết ngữ pháp tiếng Việt mạch lạc, biết sử dụng thuật ngữ chuyên ngành công nghệ (như <em>"thuật toán logic"</em>, <em>"dữ liệu đầu vào"</em>, <em>"tối ưu hóa thời gian"</em>) và giữ vững giọng điệu bách khoa.
+        </p>
+
+        <!-- Section 8: Conclusion & Next Steps -->
+        <h2 style="color: var(--text); font-size: 1.85rem; margin-top: 50px; margin-bottom: 20px; border-bottom: 1px solid var(--line); padding-bottom: 10px;">
+          8. Tổng Kết &amp; Kế Hoạch Giai Đoạn 2 (Phase 2 Roadmap)
+        </h2>
+        <p>
+          Dự án <strong>TinyDTVi</strong> chứng minh rằng việc pretrain một mô hình ngôn ngữ nền tảng từ con số 0 hoàn toàn khả thi trên một chiếc card đồ họa tiêu dùng phổ thông 12GB VRAM nếu kỹ sư làm chủ được kỹ thuật tối ưu hóa bộ nhớ và pipeline dữ liệu.
+        </p>
+        <p>Trong <strong>Giai đoạn 2 (Phase 2)</strong>, chúng tôi sẽ tiếp tục triển khai:</p>
+        <ul style="padding-left: 20px; line-height: 2;">
+          <li><strong>Supervised Fine-Tuning (SFT) &amp; DPO:</strong> Căn chỉnh mô hình theo phong cách hội thoại Chatbot và phản hồi tuân thủ chỉ dẫn (Instruction Following).</li>
+          <li><strong>Token Injection &amp; ChatML:</strong> Bổ sung token điều khiển và khôi phục ký tự xuống dòng cho template hội thoại.</li>
+          <li><strong>Hệ thống Benchmark Chuẩn Hóa:</strong> Đánh giá toàn diện trên VMLU, ViQuAD, XCOPA-vi, Belebele và ARC-vi thông qua <code>lm-evaluation-harness</code>.</li>
+          <li><strong>Kiến Trúc Mixture-of-Experts (MoE):</strong> Nghiên cứu mở rộng số lượng tham số tổng thể theo hướng MoE để gia tăng tri thức mà không làm tăng footprint bộ nhớ VRAM khi suy luận.</li>
+        </ul>
+
+        <!-- References Section -->
+        <h3 style="color: var(--text); font-size: 1.3rem; margin-top: 40px; margin-bottom: 15px;">Tài Liệu Tham Khảo Chính (References)</h3>
+        <ol style="font-size: 0.88rem; line-height: 1.8; color: var(--text-muted); padding-left: 20px;">
+          <li>Vaswani, A., et al. (2017). <em>Attention Is All You Need</em>. NeurIPS.</li>
+          <li>Zhang, B., &amp; Sennrich, R. (2019). <em>Root Mean Square Layer Normalization (RMSNorm)</em>. NeurIPS.</li>
+          <li>Shazeer, N. (2020). <em>GLU Variants Improve Transformer (SwiGLU)</em>. arXiv:2002.05202.</li>
+          <li>Su, J., et al. (2021). <em>RoFormer: Enhanced Transformer with Rotary Position Embedding (RoPE)</em>. arXiv:2104.09864.</li>
+          <li>Dettmers, T., et al. (2022). <em>8-bit Optimizers via Block-wise Quantization</em>. ICLR.</li>
+          <li>Hoffmann, J., et al. (2022). <em>Training Compute-Optimal Large Language Models (Chinchilla)</em>. arXiv:2203.15556.</li>
+          <li>Karpathy, A. (2023). <em>nanoGPT: The simplest, fastest repository for training/finetuning medium-sized GPTs</em>. GitHub.</li>
+          <li>Nguyen, T., et al. (2023). <em>CulturaX: A Cleaned, Enormous, and Multilingual Dataset for LLMs</em>. arXiv:2309.09400.</li>
+        </ol>
+
+      </div>
+    </article>
+  </main>
+
+  <footer>
+    <div class="container footer-content">
+      <div class="footer-social">
+        <a href="https://github.com/hoangduy02071997" aria-label="GitHub" target="_blank"><i class="fa-brands fa-github"></i></a>
+        <a href="https://www.linkedin.com/in/duy-hoàng-3783381a8" aria-label="LinkedIn" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+      </div>
+      <div class="footer-copyright">© 2026 Duy Hoàng · Backend / Full-stack Engineer</div>
+    </div>
+  </footer>
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>
